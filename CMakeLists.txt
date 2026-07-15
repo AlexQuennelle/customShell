@@ -24,13 +24,13 @@ endif()
 # Change this to match the name of the current folder
 project(
     customShell
-    LANGUAGES CXX
+    LANGUAGES CXX C
     VERSION 0.0
 )
 
 # Libraries here
 # include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libraries.cmake")
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick WaylandClient)
 find_package(LayerShellQt REQUIRED)
 
 qt_standard_project_setup()
@@ -38,13 +38,22 @@ qt_add_executable("${CMAKE_PROJECT_NAME}")
 
 qt_add_qml_module(${CMAKE_PROJECT_NAME}
     URI Shell
-    QML_FILES main.qml
+    QML_FILES
+        main.qml
+    SOURCES
+        src/main.cpp
+        include/workspace/workspaceManager.h
+        src/workspace/workspaceManager.cpp
+)
+qt_generate_wayland_protocol_client_sources(${CMAKE_PROJECT_NAME}
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/protocols/ext-workspace-v1.xml
 )
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Qml
     Qt6::Quick
+    Qt6::WaylandClient
     LayerShellQt::Interface
 )
 
@@ -59,7 +68,7 @@ set(CMAKE_CXX_FLAGS
     "-Wall -Wextra -Wnon-virtual-dtor -Wold-style-cast -Wcast-align\
     -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion\
     -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wduplicated-cond\
-    -Wduplicated-branches -Wlogical-op -Wuseless-cast"
+    -Wduplicated-branches -Wlogical-op -Wuseless-cast -Wfatal-errors"
 )
 # file(GLOB_RECURSE
 #     MY_SOURCES CONFIGURE_DEPENDS
@@ -97,7 +106,15 @@ target_compile_features("${CMAKE_PROJECT_NAME}" PRIVATE cxx_std_23)
 target_sources("${CMAKE_PROJECT_NAME}"
     PRIVATE
     src/main.cpp
+
+    include/shellBackend.h
     src/shellBackend.cpp
+
+    include/shellController.h
+    src/shellController.cpp
+
+    include/workspace/workspaceManager.h
+    src/workspace/workspaceManager.cpp
 )
 
 target_include_directories(

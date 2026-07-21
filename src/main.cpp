@@ -8,6 +8,7 @@
 auto main(int argc, char* argv[]) -> int
 {
 	qputenv("QT_QPA_PLATFORM", "wayland");
+	qputenv("QT_ASSUME_STDERR_HAS_CONSOLE", "1");
 
 	QGuiApplication app(argc, argv);
 
@@ -19,22 +20,5 @@ auto main(int argc, char* argv[]) -> int
 
 	ShellController controller;
 
-	// view.setResizeMode(QQuickView::ResizeMode::SizeRootObjectToView);
-	// view.setSource(QUrl(QStringLiteral("qrc:/Shell/main.qml")));
-	// view.setHeight(40);
-	// view.setColor(Qt::transparent);
-	// view.create();
-	// if (auto* layerWin = LayerShellQt::Window::get(&view))
-	// {
-	// 	LayerShellQt::Window::Anchors barAnchors = {
-	// 		LayerShellQt::Window::AnchorTop,
-	// 		LayerShellQt::Window::AnchorLeft,
-	// 		LayerShellQt::Window::AnchorRight,
-	// 	};
-	// 	layerWin->setAnchors(barAnchors);
-	// 	layerWin->setExclusiveZone(view.height());
-	// 	layerWin->setLayer(LayerShellQt::Window::LayerTop);
-	// }
-	// view.show();
 	return app.exec();
 }

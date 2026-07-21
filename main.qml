@@ -1,8 +1,11 @@
 import QtQuick
 import QtQuick.Window
+import Shell
 
 Item {
     id: root
+
+    Component.onCompleted: {}
 
     Rectangle {
         anchors {
@@ -13,6 +16,14 @@ Item {
         height: parent.height
         color: "red"
 
+        MouseArea {
+            anchors {
+                fill: parent
+            }
+            onClicked: mouse => {
+                // ShellBackend.TestPrint();
+            }
+        }
         Text {
             anchors {
                 centerIn: parent

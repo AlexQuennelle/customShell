@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 4.2.1)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -14,6 +14,8 @@ option(CONFIG_USE_ASAN "Whether to enable address sanitizer" OFF)
 option(CONFIG_USE_UBSAN "Whether to enable undefined behavior sanitizer" OFF)
 
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+
+add_compile_options("-freflection")
 
 if(CONFIG_USE_UBSAN)
     add_compile_options("-fsanitize=undefined")
@@ -42,8 +44,12 @@ qt_add_qml_module(${CMAKE_PROJECT_NAME}
         main.qml
     SOURCES
         src/main.cpp
-        include/workspace/workspaceManager.h
-        src/workspace/workspaceManager.cpp
+
+        include/shellBackend.h
+        src/shellBackend.cpp
+
+        include/workspace/extWorkspaceManager.h
+        src/workspace/extWorkspaceManager.cpp
 )
 qt_generate_wayland_protocol_client_sources(${CMAKE_PROJECT_NAME}
     FILES ${CMAKE_CURRENT_SOURCE_DIR}/protocols/ext-workspace-v1.xml
@@ -96,7 +102,7 @@ target_compile_definitions(
 RESOURCES_PATH=$<IF:$<CONFIG:Release>,"./resources/","${DEBUG_RESOURCE_DIR}">
 )
 
-target_compile_features("${CMAKE_PROJECT_NAME}" PRIVATE cxx_std_23)
+target_compile_features("${CMAKE_PROJECT_NAME}" PRIVATE cxx_std_26)
 
 # target_include_directories(
 #     "${CMAKE_PROJECT_NAME}" PRIVATE
@@ -113,8 +119,8 @@ target_sources("${CMAKE_PROJECT_NAME}"
     include/shellController.h
     src/shellController.cpp
 
-    include/workspace/workspaceManager.h
-    src/workspace/workspaceManager.cpp
+    include/workspace/extWorkspaceManager.h
+    src/workspace/extWorkspaceManager.cpp
 )
 
 target_include_directories(

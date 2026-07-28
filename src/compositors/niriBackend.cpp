@@ -8,7 +8,7 @@ NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 {
 	QString sockAddr = std::getenv("NIRI_SOCKET");
 
-	std::string testStr = R"({"WorkspaceActivated":{"id":5,"focused":true}})";
+	std::string testStr = R"({"WorkspaceActivated":{"foc0sed":true}})";
 	// std::string testStr = R"({"Ok":{"Version":"bloop"}})";
 	// std::string testStr = R"({"Ok":"Handled"})";
 

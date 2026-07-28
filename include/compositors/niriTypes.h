@@ -321,7 +321,7 @@ template <> struct meta<niri::Event>
 {
 	using T = niri::Event;
 	static constexpr auto custom_read
-		= [](niri::Event& self, const glz::generic& input) -> void
+		= [](niri::Event& self, const generic& input, context& ctx) -> void
 	{
 		if (!input.is_object())
 			return;
@@ -331,9 +331,16 @@ template <> struct meta<niri::Event>
 		;
 		std::cout << obj.begin()->first << '\n';
 		niri::EventType event;
-		glz::read<glzOpts{}>(event, var);
-		// self = T{.event = niri::WorkspaceActivated()};
-		self.event = event;
+		auto err = read<glzOpts{}>(event, var);
+		if (err.ec != error_code::none)
+		{
+			ctx.error = err.ec;
+			ctx.custom_error_message = err.custom_error_message;
+		}
+		else
+		{
+			self.event = event;
+		}
 	};
 	// static constexpr auto custom_write = [](auto& self) -> T&
 	// {

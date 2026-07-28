@@ -1,6 +1,7 @@
 #pragma once
 
 #include "compositors/compositorBackend.h"
+#include "compositors/niriBackend.h"
 #include "workspace/extWorkspaceManager.h"
 
 #include <QDebug>
@@ -40,15 +41,13 @@ class ShellBackend : public QObject
 	void TestSignal();
 
 	private:
-	ShellBackend(QObject* parent = nullptr) :
-		QObject(parent), updateLoop(new QTimer(this))
+	ShellBackend(QObject* parent = nullptr) : QObject(parent)
 	{
+		this->compositor = std::make_unique<NiriBackend>();
 		workspaceManager = std::make_unique<WLWorkspaceManager>();
-		connect(updateLoop.get(), &QTimer::timeout, this,
-				&ShellBackend::Update);
 	};
 
+	std::unique_ptr<ICompositorBackend> compositor{nullptr};
 	std::unique_ptr<IWorkspaceManager> workspaceManager{nullptr};
-	std::unique_ptr<QTimer> updateLoop{nullptr};
 	bool test{false};
 };

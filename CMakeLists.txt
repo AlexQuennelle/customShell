@@ -34,6 +34,9 @@ project(
 # include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libraries.cmake")
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick WaylandClient)
 find_package(LayerShellQt REQUIRED)
+find_package(glaze REQUIRED)
+
+set(glaze_ENABLE_REFLECTION26 ON)
 
 qt_standard_project_setup()
 qt_add_executable("${CMAKE_PROJECT_NAME}")
@@ -61,6 +64,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt6::Quick
     Qt6::WaylandClient
     LayerShellQt::Interface
+    glaze::glaze
 )
 
 
@@ -118,6 +122,9 @@ target_sources("${CMAKE_PROJECT_NAME}"
 
     include/shellController.h
     src/shellController.cpp
+
+    include/compositors/niriBackend.h
+    src/compositors/niriBackend.cpp
 
     include/workspace/extWorkspaceManager.h
     src/workspace/extWorkspaceManager.cpp

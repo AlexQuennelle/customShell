@@ -3,7 +3,6 @@
 #include <QObject>
 
 class IWorkspaceManager : public QObject
-{
-};
-class ICompositorBackend
+{ };
+class ICompositorBackend : public QObject
 { };

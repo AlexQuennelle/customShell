@@ -1,2 +1,8 @@
 CompileFlags:
-  Remove: [-mno-direct-extern-access]
+  Remove: [-mno-direct-extern-access, -f*]
+  Add:
+    - -std=c++26
+    - -D__clangd__=1
+    - -Wno-unknown-pragmas
+Diagnostics:
+  Suppress: ["unknown_argument", "expected_expression","typename_requires_specqual"]

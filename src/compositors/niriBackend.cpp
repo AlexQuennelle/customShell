@@ -1,14 +1,13 @@
 #include "compositors/niriBackend.h"
 #include "compositors/niriTypes.h"
 
-#include <meta>
 #include <qdebug.h>
 
 NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 {
 	QString sockAddr = std::getenv("NIRI_SOCKET");
 
-	std::string testStr = R"({"WorkspaceActivated":{"foc0sed":true}})";
+	std::string testStr = R"({"WindowUrgencyChanged":{"id":5,"urgent":true}})";
 	// std::string testStr = R"({"Ok":{"Version":"bloop"}})";
 	// std::string testStr = R"({"Ok":"Handled"})";
 
@@ -22,30 +21,25 @@ NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 	auto err = glz::read<glzOpts{}>(testRes, testStr);
 	if (err.ec != glz::error_code::none)
 	{
-		qDebug() << "Is not Response";
-		qDebug() << "Error:" << err.custom_error_message;
 #ifndef __clangd__
 		qDebug() << glz::enum_to_string<glz::error_code>(err.ec);
 #endif
-		niri::Event testEv;
-		err = glz::read<glzOpts{}>(testEv, testStr);
-		if (err.ec != glz::error_code::none)
-		{
-			qDebug() << "Is not Event";
-			qDebug() << "Error:" << err.custom_error_message;
-#ifndef __clangd__
-			qDebug() << glz::enum_to_string<glz::error_code>(err.ec);
-#endif
-		}
-		else
-		{
-			qDebug() << "Is Event:" << testEv.event.index();
-			assert(testEv.event.index() == 2);
-		}
 	}
 	else
 	{
 		qDebug() << "Is Response";
+	}
+	niri::Event testEv;
+	err = glz::read<glzOpts{}>(testEv, testStr);
+	if (err.ec != glz::error_code::none)
+	{
+#ifndef __clangd__
+		qDebug() << glz::enum_to_string<glz::error_code>(err.ec);
+#endif
+	}
+	else
+	{
+		qDebug() << "Is Event:" << testEv.event.index();
 	}
 
 	assert(false && "Break");

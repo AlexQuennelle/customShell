@@ -1,22 +1,11 @@
 #include "compositors/niriBackend.h"
-#include "compositors/niriTypes.h"
+#include "compositors/niriTypes.hpp"
 
 #include <qdebug.h>
 
 NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 {
 	QString sockAddr = std::getenv("NIRI_SOCKET");
-
-	std::string_view testStr
-		= R"("{"CastStartedOrChanged":{"cast":{"stream_id":4,"session_id":4,"kind":"PipeWire","target":{"Output":{"name":"HDMI-A-1"}},"is_dynamic_target":false,"is_active":false,"pid":null,"pw_node_id":85}}}")";
-	niri::Event testEvent{
-		.event = niri::CastStartedOrChangedEvent{
-			.cast = niri::CastData{.target = niri::CastTarget{
-									   .data = niri::OutputID{"HDMI-A-1"}}}}};
-	auto testWrite = glz::write<glzOpts{}>(testEvent).value_or("Write Error");
-	qDebug() << testWrite;
-
-	assert(false);
 
 	connect(&eventSock, &QLocalSocket::connected,
 			[this, &sockAddr]() -> void

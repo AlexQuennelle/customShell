@@ -1,11 +1,14 @@
 #pragma once
 
+#ifndef __clangd__
+#include <iostream>
+#include <meta>
+#endif
+
 #include <array>
 #include <cstdint>
 #include <glaze/forward.hpp>
 #include <glaze/glaze.hpp>
-#include <iostream>
-#include <meta>
 #include <optional>
 #include <string>
 #include <variant>
@@ -21,16 +24,16 @@ struct FocusTimestamp {
   uint64_t nanos;
 };
 struct LayoutData {
-  std::optional<std::array<int64_t, 2>> pos_in_scrolling_layout{};
+  std::optional<std::array<int64_t, 2>> pos_in_scrolling_layout;
   std::array<double, 2> tile_size{};
   std::array<int32_t, 2> window_size{};
-  std::optional<std::array<double, 2>> tile_pos_in_workspace_view{};
+  std::optional<std::array<double, 2>> tile_pos_in_workspace_view;
   std::array<double, 2> window_offset_in_tile{};
 };
 struct WindowData {
   uint64_t id{};
-  std::optional<std::string> title{};
-  std::optional<std::string> app_id{};
+  std::optional<std::string> title;
+  std::optional<std::string> app_id;
   std::optional<int64_t> pid;
   std::optional<uint64_t> workspace_id;
   bool is_focused{};
@@ -138,7 +141,7 @@ enum class CastKind : uint8_t {
 };
 enum class EmptyCastTarget : uint8_t { Nothing };
 using CastTargetType = std::variant<EmptyCastTarget, OutputID, WindowID>;
-struct CastTarget {
+struct CastTarget { // TODO: fix outputID and windowID objects
   CastTargetType data;
 };
 struct CastData {
@@ -208,11 +211,11 @@ using ResponsePayload =
                  OutputConfigChangedResponse, OverviewStateResponse,
                  CastsResponse>;
 // = std::variant<HandledResponse, VersionResponse, OutputsResponse,
-// 			   WindowsResponse, WindowsResponse, LayersResponse,
-// 			   KeyboardLayoutsResponse, FocusedOutputResponse,
-// 			   FocusedWindowResponse, PickedWindowResponse,
-// 			   PickedColorResponse, OutputConfigChangedResponse,
-// 			   OverviewStateResponse, CastsResponse>;
+// 				 WindowsResponse, WindowsResponse,
+// LayersResponse, 				 KeyboardLayoutsResponse,
+// FocusedOutputResponse, 				 FocusedWindowResponse,
+// PickedWindowResponse, 				 PickedColorResponse,
+// OutputConfigChangedResponse, OverviewStateResponse, CastsResponse>;
 
 struct OkResponse {
   ResponsePayload Ok;
@@ -241,7 +244,7 @@ struct WindowsChangedEvent {
   std::vector<WindowData> windows;
 };
 struct WindowOpenedOrChangedEvent {
-  WindowData Window;
+  WindowData window;
 };
 struct WindowClosedEvent {
   uint64_t id;
@@ -249,7 +252,7 @@ struct WindowClosedEvent {
 struct WindowFocusChangedEvent {
   std::optional<uint64_t> id;
 };
-struct WindowFocusTimestampeChangedEvent {
+struct WindowFocusTimestampChangedEvent {
   uint64_t id{};
   std::optional<FocusTimestamp> focus_timestamp;
 };
@@ -257,7 +260,7 @@ struct WindowUrgencyChangedEvent {
   uint64_t id;
   bool urgent;
 };
-struct WindowLayoutsChangedEvent {
+struct WindowLayoutsChangedEvent { // TODO: niri passes as mixed array, not map
   std::map<uint64_t, LayoutData> changes;
 };
 struct KeyboardLayoutsChangedEvent {
@@ -290,7 +293,7 @@ using EventType =
                  WorkspaceActivatedEvent, WorkspaceActiveWindowChangedEvent,
                  WindowsChangedEvent, WindowOpenedOrChangedEvent,
                  WindowClosedEvent, WindowFocusChangedEvent,
-                 WindowFocusTimestampeChangedEvent, WindowUrgencyChangedEvent,
+                 WindowFocusTimestampChangedEvent, WindowUrgencyChangedEvent,
                  WindowLayoutsChangedEvent, KeyboardLayoutsChangedEvent,
                  KeyboardLayoutSwitchedEvent, OverviewOpenedOrClosedEvent,
                  ConfigLoadedEvent, ScreenshotCapturedEvent, CastsChangedEvent,
@@ -310,6 +313,16 @@ template <> struct meta<niri::LayerSurface> {
   static constexpr auto value = glz::object(
       "namespace", &T::_namespace, "output", &T::output, "layer", &T::layer,
       "keyboard_interactivity", &T::keyboard_interactivity);
+};
+
+template <> struct meta<niri::CastTarget> {
+  using T = niri::CastTarget;
+  static constexpr auto custom_read = [](T &self, const generic &input,
+                                         context &ctx) -> void {
+    if (!input.is_object())
+      return;
+  };
+  static constexpr auto value = &niri::CastTarget::data;
 };
 
 template <> struct meta<niri::Response> {
@@ -348,12 +361,19 @@ template <> struct meta<niri::Event> {
         if (err.ec != error_code::none) {
           ctx.error = err.ec;
           ctx.custom_error_message = err.custom_error_message;
+          std::cout << "Error: " << err.custom_error_message << " | "
+                    << typeName << '\n';
         } else {
           ctx.error = error_code::none;
           ctx.custom_error_message = "";
+          std::cout << typeName << '\n';
           self.event = event;
         }
       }
+    }
+    if (ctx.error != error_code::none) {
+      std::cout << "Error: " << ctx.custom_error_message << " | "
+                << obj.begin()->first << '\n';
     }
   };
   static constexpr auto custom_write =

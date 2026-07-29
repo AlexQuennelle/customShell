@@ -13,7 +13,8 @@ class NiriBackend : public ICompositorBackend
 	~NiriBackend() override = default;
 
 	private:
-	void ProcessEvent();
+	void ReadMessages();
+	void ProcessMessage(const std::string_view message);
 
 	QLocalSocket eventSock;
 	QLocalSocket cmdSock;

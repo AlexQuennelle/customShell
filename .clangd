@@ -3,6 +3,7 @@ CompileFlags:
   Add:
     - -std=c++26
     - -D__clangd__=1
-    - -Wno-unknown-pragmas
-Diagnostics:
-  Suppress: ["unknown_argument", "expected_expression","typename_requires_specqual"]
+Style:
+  FallbackStyle: file
+# Diagnostics:
+#   Suppress: ["unknown_argument", "expected_expression","typename_requires_specqual"]

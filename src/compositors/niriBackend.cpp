@@ -7,42 +7,16 @@ NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 {
 	QString sockAddr = std::getenv("NIRI_SOCKET");
 
-	std::string testStr = R"({"WindowUrgencyChanged":{"id":5,"urgent":true}})";
-	// std::string testStr = R"({"Ok":{"Version":"bloop"}})";
-	// std::string testStr = R"({"Ok":"Handled"})";
+	std::string_view testStr
+		= R"("{"CastStartedOrChanged":{"cast":{"stream_id":4,"session_id":4,"kind":"PipeWire","target":{"Output":{"name":"HDMI-A-1"}},"is_dynamic_target":false,"is_active":false,"pid":null,"pw_node_id":85}}}")";
+	niri::Event testEvent{
+		.event = niri::CastStartedOrChangedEvent{
+			.cast = niri::CastData{.target = niri::CastTarget{
+									   .data = niri::OutputID{"HDMI-A-1"}}}}};
+	auto testWrite = glz::write<glzOpts{}>(testEvent).value_or("Write Error");
+	qDebug() << testWrite;
 
-	// niri::Message expectedRes
-	// = niri::Event(niri::WorkspaceActivated{.id = 1});
-	niri::Event expectedRes{.event = niri::WorkspaceActivatedEvent()};
-	// = niri::Response{.data = niri::OkResponse(std::string("Handled"))};
-	auto garbage = glz::write<glzOpts{}>(expectedRes);
-	qDebug() << testStr << garbage.value_or("Error Writing");
-	niri::Response testRes;
-	auto err = glz::read<glzOpts{}>(testRes, testStr);
-	if (err.ec != glz::error_code::none)
-	{
-#ifndef __clangd__
-		qDebug() << glz::enum_to_string<glz::error_code>(err.ec);
-#endif
-	}
-	else
-	{
-		qDebug() << "Is Response";
-	}
-	niri::Event testEv;
-	err = glz::read<glzOpts{}>(testEv, testStr);
-	if (err.ec != glz::error_code::none)
-	{
-#ifndef __clangd__
-		qDebug() << glz::enum_to_string<glz::error_code>(err.ec);
-#endif
-	}
-	else
-	{
-		qDebug() << "Is Event:" << testEv.event.index();
-	}
-
-	assert(false && "Break");
+	assert(false);
 
 	connect(&eventSock, &QLocalSocket::connected,
 			[this, &sockAddr]() -> void
@@ -54,7 +28,7 @@ NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 				}
 			});
 	connect(&eventSock, &QLocalSocket::readyRead, this,
-			&NiriBackend::ProcessEvent);
+			&NiriBackend::ReadMessages);
 	eventSock.connectToServer(sockAddr);
 
 	connect(&cmdSock, &QLocalSocket::connected,
@@ -66,13 +40,39 @@ NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 	cmdSock.connectToServer(sockAddr);
 }
 
-void NiriBackend::ProcessEvent()
+void NiriBackend::ReadMessages()
 {
-	// qDebug() << "New Event";
 	QByteArray line;
 	while (this->eventSock.canReadLine())
 	{
 		line = this->eventSock.readLine();
-		// qDebug() << line;
+		ProcessMessage(line);
+	}
+}
+void NiriBackend::ProcessMessage(const std::string_view message)
+{
+	niri::Response response;
+	auto err = glz::read<glzOpts{}>(response, message);
+	if (err.ec != glz::error_code::none)
+	{
+#ifndef __clangd__
+		// qDebug() << glz::enum_to_string<glz::error_code>(err.ec);
+#endif
+	}
+	else
+	{
+		// qDebug() << "Is Response";
+	}
+	niri::Event event;
+	err = glz::read<glzOpts{}>(event, message);
+	if (err.ec != glz::error_code::none)
+	{
+#ifndef __clangd__
+		// qDebug() << glz::enum_to_string<glz::error_code>(err.ec);
+#endif
+	}
+	else
+	{
+		// qDebug() << "Is Event:" << event.event.index();
 	}
 }

@@ -86,7 +86,7 @@ class WorkspaceGroup : public QObject,
 class WorkspaceHandle : public QObject,
 						public QtWayland::ext_workspace_handle_v1
 {
-	Q_OBJECT
+	Q_OBJECT; // NOLINT
 
 	public:
 	WorkspaceHandle(struct ::ext_workspace_handle_v1* id) { this->init(id); }

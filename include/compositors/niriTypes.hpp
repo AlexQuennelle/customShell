@@ -503,7 +503,6 @@ template <> struct meta<niri::Event>
 				{
 					ctx.error = error_code::none;
 					ctx.custom_error_message = "";
-					std::cout << typeName << '\n';
 					self.event = event;
 				}
 			}

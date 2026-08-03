@@ -125,6 +125,8 @@ target_sources("${CMAKE_PROJECT_NAME}"
 
     include/compositors/niriBackend.h
     src/compositors/niriBackend.cpp
+    include/compositors/waylandBackend.hpp
+    src/compositors/waylandBackend.cpp
 
     include/workspace/extWorkspaceManager.h
     src/workspace/extWorkspaceManager.cpp

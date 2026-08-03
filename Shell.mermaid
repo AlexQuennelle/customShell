@@ -1,0 +1,78 @@
+classDiagram
+    direction LR
+
+    UI -- ShellController
+    ShellController -- ShellBackend
+    ShellBackend *-- ICompositor
+    ShellBackend *-- IWorkspaceManager
+    ShellBackend *-- Pipewire
+    ShellBackend *-- Notifications
+    ShellBackend *-- LockScreen
+    ShellBackend *-- Power
+    ShellBackend *-- Polkit
+    ShellBackend *-- Settings
+    ShellBackend *-- SysTray
+    ShellBackend *-- Media
+    ICompositor ..|> NiriBackend
+    ICompositor ..|> WaylandBackend
+    WaylandBackend --() QWaylandCompositor
+    IWorkspaceManager ..|> NiriWorkspaceManager
+    IWorkspaceManager ..|> ExtWorkspaceManager
+    IWorkspaceManager o--"1..*" WorkspaceGroup
+    IWorkspaceManager o--"1..*" Workspace
+    NiriBackend --> NiriWorkspaceManager
+    WaylandBackend --> ExtWorkspaceManager
+
+    namespace Interfaces {
+        class ICompositor <<Interface>> {
+            +GetActiveWindow(outputName) WindowData
+
+            -ActiveWindowChanged()
+        }
+        class IWorkspaceManager <<Interface>> {
+            +GetWorkspaces(outputName) QList~Workspace*~
+            +CreateWorkspace(name)
+            +RemoveWorkspace(id)
+            +SetWorkspaceOutput(id, outputName)
+            +SetWorkspaceName(id, name)
+            +SetWorkspaceIndex(id, index)
+            +ActivateWorkspace(id)
+
+            -WorkspacesChanged()
+        }
+    }
+    class UI["QML UI"] {
+    }
+    class ShellController {
+        vector~QQuickView~
+    }
+    class ShellBackend {
+    }
+    namespace Niri {
+        class NiriBackend {
+            -int activeWindowID
+            -int activeWorkspaceID
+            -map~WindowData~
+        }
+        class NiriWorkspaceManager {
+            -map~string, WorkspaceGroup~
+        }
+    }
+    namespace Wayland {
+        class WaylandBackend
+        class ExtWorkspaceManager {
+            -vector~WorkspaceGroup~
+            -map~string, WorkspaceGroup*~
+        }
+    }
+    class WorkspaceGroup {
+        +vector~Workspace*~
+    }
+    class Workspace {
+        +string id
+        +string name
+        +int index
+        +bool urgent
+        +bool active
+        +bool focused
+    }

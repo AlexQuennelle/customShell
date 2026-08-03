@@ -6,27 +6,30 @@
 #include <QWaylandClientExtensionTemplate>
 #include <qwayland-ext-workspace-v1.h>
 
-class WorkspaceGroup;
-class WorkspaceHandle;
 class ExtWorkspaceManagerBridge;
+class WLWorkspaceGroup;
+class ExtWorkspaceGroupBridge;
+class WorkspaceHandle;
 
 class WLWorkspaceManager : public IWorkspaceManager
 {
-	Q_OBJECT
+	Q_OBJECT; // NOLINT
 
 	public:
 	WLWorkspaceManager();
 	~WLWorkspaceManager() override;
 
 	private:
-	void OnNewWorkspaceGroup(
-		struct ::ext_workspace_group_handle_v1* workspaceHandle);
+	void
+	OnNewWorkspaceGroup(struct ::ext_workspace_group_handle_v1* groupHandle);
 	void OnNewWorkspace(struct ::ext_workspace_handle_v1* workspaceHandle);
 	void OnDone();
 	void OnFinished();
 
 	friend class ExtWorkspaceManagerBridge;
 	std::unique_ptr<ExtWorkspaceManagerBridge> manager{nullptr};
+
+	std::vector<WLWorkspaceGroup> groups;
 };
 
 class ExtWorkspaceManagerBridge
@@ -53,34 +56,56 @@ class ExtWorkspaceManagerBridge
 	WLWorkspaceManager* wrapper;
 };
 
-class WorkspaceGroup : public QObject,
-					   public QtWayland::ext_workspace_group_handle_v1
+class WLWorkspaceGroup : QObject
 {
-	Q_OBJECT
+	Q_OBJECT; // NOLINT
+
 	public:
-	WorkspaceGroup(struct ::ext_workspace_group_handle_v1* id)
-	{
-		this->init(id);
-	}
-	~WorkspaceGroup() override { this->destroy(); };
+	WLWorkspaceGroup(struct ::ext_workspace_group_handle_v1* id);
+	WLWorkspaceGroup(const WLWorkspaceGroup&) = delete;
+	WLWorkspaceGroup(WLWorkspaceGroup&&) noexcept;
+	~WLWorkspaceGroup() override;
+
+	auto operator=(const WLWorkspaceGroup&) -> WLWorkspaceGroup& = delete;
+	// auto operator=(WLWorkspaceGroup&&) -> WLWorkspaceGroup& { };
+
+	private:
+	void OnCapabilities(uint32_t capabilities);
+	void OnOutputEnter(struct ::wl_output* output);
+	void OnOutputLeave(struct ::wl_output* output);
+	void OnWorkspaceEnter(struct ::ext_workspace_handle_v1* workspace);
+	void OnWorkspaceLeave(struct ::ext_workspace_handle_v1* workspace);
+	void OnRemoved();
+
+	friend class ExtWorkspaceGroupBridge;
+	std::unique_ptr<ExtWorkspaceGroupBridge> manager{nullptr};
+};
+
+class ExtWorkspaceGroupBridge
+	: public QWaylandClientExtensionTemplate<ExtWorkspaceGroupBridge>,
+	  public QtWayland::ext_workspace_group_handle_v1
+{
+	public:
+	ExtWorkspaceGroupBridge(WLWorkspaceGroup* interface,
+							struct ::ext_workspace_group_handle_v1* id);
+	~ExtWorkspaceGroupBridge() override { this->destroy(); }
 
 	protected:
 	void
-	ext_workspace_group_handle_v1_capabilities(uint32_t capabilities) override
-	{ }
+	ext_workspace_group_handle_v1_capabilities(uint32_t capabilities) override;
 	void ext_workspace_group_handle_v1_output_enter(
-		struct ::wl_output* output) override
-	{ }
+		struct ::wl_output* output) override;
 	void ext_workspace_group_handle_v1_output_leave(
-		struct ::wl_output* output) override
-	{ }
+		struct ::wl_output* output) override;
 	void ext_workspace_group_handle_v1_workspace_enter(
-		struct ::ext_workspace_handle_v1* workspace) override
-	{ }
+		struct ::ext_workspace_handle_v1* workspace) override;
 	void ext_workspace_group_handle_v1_workspace_leave(
-		struct ::ext_workspace_handle_v1* workspace) override
-	{ }
-	void ext_workspace_group_handle_v1_removed() override { };
+		struct ::ext_workspace_handle_v1* workspace) override;
+	void ext_workspace_group_handle_v1_removed() override;
+
+	private:
+	friend class WLWorkspaceGroup;
+	WLWorkspaceGroup* wrapper;
 };
 
 class WorkspaceHandle : public QObject,

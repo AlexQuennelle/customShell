@@ -6,7 +6,7 @@
 
 class NiriBackend : public ICompositorBackend
 {
-	Q_OBJECT
+	Q_OBJECT; // NOLINT
 
 	public:
 	NiriBackend();

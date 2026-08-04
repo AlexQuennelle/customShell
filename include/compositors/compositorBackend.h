@@ -2,6 +2,37 @@
 
 #include <QObject>
 
+class WindowInfo : public QObject
+{
+	Q_OBJECT; // NOLINT
+
+	Q_PROPERTY(QString title READ GetTitle NOTIFY TitleChanged FINAL)
+	Q_PROPERTY(QString appID READ GetAppID NOTIFY AppIDChanged FINAL)
+
+	public:
+	WindowInfo() = default;
+	WindowInfo(QString title, QString appID);
+	WindowInfo(const WindowInfo&) = delete;
+	WindowInfo(WindowInfo&&) = delete;
+
+	auto GetTitle() const -> const QString&;
+	auto GetAppID() const -> const QString&;
+
+	void SetTitle(const QString& newTitle);
+	void SetAppID(const QString& newAppID);
+
+	auto operator=(const WindowInfo& other) -> WindowInfo& = delete;
+	auto operator=(WindowInfo&& other) noexcept -> WindowInfo&;
+
+	signals:
+	void TitleChanged(const QString& title);
+	void AppIDChanged(const QString& appID);
+
+	private:
+	QString title{};
+	QString appID{};
+};
+
 class IWorkspaceManager : public QObject
 {
 	Q_OBJECT; // NOLINT
@@ -28,9 +59,10 @@ class ICompositorBackend : public QObject
 	public:
 	virtual ~ICompositorBackend() = default;
 
+	virtual auto GetActiveWindow(QStringView outputName) -> WindowInfo& = 0;
+
 	signals:
-	// TODO: Make proper struct to pass
-	void ActiveWindowChanged(QString data);
+	// void ActiveWindowChanged(WindowData* window);
 };
 Q_DECLARE_INTERFACE(ICompositorBackend, "CompositorInterfaceClass")
 

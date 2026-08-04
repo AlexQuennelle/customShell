@@ -1,4 +1,5 @@
 #include "compositors/niriBackend.h"
+#include "compositors/compositorBackend.h"
 #include "compositors/niriTypes.hpp"
 
 #include <qdebug.h>
@@ -67,14 +68,22 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 	else
 	{
 		auto eventSwitch = Overload{
-			[this](WindowFocusChangedEvent& event) -> void
-			{ emit ActiveWindowChanged("test"); },
+			[this](WindowOpenedOrChangedEvent& event) -> void
+			{
+				auto& window{event.window};
+				this->windows[window.id]
+					= WindowInfo(window.title.value_or("").c_str(),
+								  window.app_id.value_or("").c_str());
+				qDebug() << "New Window";
+			},
+			[](WindowFocusChangedEvent& event) -> void
+			{ qDebug() << event.id.value_or(0); },
 			[](auto) -> void { }, // NOLINT
 		};
 		std::visit(eventSwitch, event.event);
 		// auto out = glz::write<glzOpts{}>(event).value_or("ERROR");
 		// qDebug().noquote() << out;
-	}
+	} //namespace niri
 }
 
 } //namespace niri

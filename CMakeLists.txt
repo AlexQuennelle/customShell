@@ -124,6 +124,7 @@ target_sources("${CMAKE_PROJECT_NAME}"
     src/shellController.cpp
 
     include/compositors/compositorBackend.h
+    src/compositors/compositorBackend.cpp
     include/compositors/niriBackend.h
     src/compositors/niriBackend.cpp
     include/compositors/waylandBackend.hpp

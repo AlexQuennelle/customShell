@@ -24,7 +24,13 @@ class NiriBackend : public ICompositorBackend
 	void ReadMessages();
 	void ProcessMessage(const std::string_view message);
 
-	std::map<uint64_t, QString> windows;
+	auto GetActiveWindow(QStringView outputName) -> WindowInfo& override
+	{
+		return activeWindows.begin()->second;
+	}
+
+	std::map<QString, WindowInfo> activeWindows;
+	std::map<uint64_t, WindowInfo> windows;
 	QLocalSocket eventSock;
 	QLocalSocket cmdSock;
 };

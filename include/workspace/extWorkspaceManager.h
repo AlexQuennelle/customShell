@@ -19,6 +19,14 @@ class WLWorkspaceManager : public IWorkspaceManager
 	WLWorkspaceManager();
 	~WLWorkspaceManager() override;
 
+	auto GetWorkspaces(QStringView outputName) -> QList<QObject*> override;
+	void CreateWorkspace(QStringView name) override;
+	void RemoveWorkspace(QStringView id) override;
+	void SetWorkspaceOutput(QStringView id, QStringView outputName) override;
+	void SetWorkspaceName(QStringView id, QStringView name) override;
+	void SetWorkspaceIndex(QStringView id, uint64_t index) override;
+	void ActivateWorkspace(QStringView id) override;
+
 	private:
 	void
 	OnNewWorkspaceGroup(struct ::ext_workspace_group_handle_v1* groupHandle);

@@ -14,6 +14,12 @@
 #include <string>
 #include <variant>
 
+template <typename... Ts> struct Overload : Ts...
+{
+	using Ts::operator()...;
+};
+template <class... Ts> Overload(Ts...) -> Overload<Ts...>;
+
 struct glzOpts : glz::opts
 {
 	bool reflect_enums = true;
@@ -492,12 +498,12 @@ template <> struct meta<niri::Event>
 				{
 					ctx.error = err.ec;
 					ctx.custom_error_message = err.custom_error_message;
-					std::cout
-						<< "Error: "
-						<< err.custom_error_message
-						<< " | "
-						<< typeName
-						<< '\n';
+					// std::cout
+					// 	<< "Error: "
+					// 	<< err.custom_error_message
+					// 	<< " | "
+					// 	<< typeName
+					// 	<< '\n';
 				}
 				else
 				{
@@ -507,15 +513,15 @@ template <> struct meta<niri::Event>
 				}
 			}
 		}
-		if (ctx.error != error_code::none)
-		{
-			std::cout
-				<< "Error: "
-				<< ctx.custom_error_message
-				<< " | "
-				<< obj.begin()->first
-				<< '\n';
-		}
+		// if (ctx.error != error_code::none)
+		// {
+		// 	std::cout
+		// 		<< "Error: "
+		// 		<< ctx.custom_error_message
+		// 		<< " | "
+		// 		<< obj.begin()->first
+		// 		<< '\n';
+		// }
 	};
 	static constexpr auto custom_write
 		= [](T& self) -> std::map<std::string_view, niri::EventType>

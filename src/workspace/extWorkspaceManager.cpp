@@ -4,6 +4,25 @@ WLWorkspaceManager::WLWorkspaceManager() :
 	manager(new ExtWorkspaceManagerBridge(this))
 { }
 WLWorkspaceManager::~WLWorkspaceManager() { manager.reset(); }
+auto WLWorkspaceManager::GetWorkspaces(QStringView outputName)
+	-> QList<QObject*>
+{
+	return {};
+}
+void WLWorkspaceManager::CreateWorkspace(QStringView name) { }
+void WLWorkspaceManager::RemoveWorkspace(QStringView id) { }
+void WLWorkspaceManager::SetWorkspaceOutput(QStringView id,
+											QStringView outputName)
+{ }
+void WLWorkspaceManager::SetWorkspaceName(QStringView id, QStringView name) { }
+void WLWorkspaceManager::SetWorkspaceIndex(QStringView id, uint64_t index) { }
+void WLWorkspaceManager::ActivateWorkspace(QStringView id) { };
+;
+;
+;
+;
+;
+;
 void WLWorkspaceManager::OnNewWorkspaceGroup(
 	struct ::ext_workspace_group_handle_v1* groupHandle)
 {

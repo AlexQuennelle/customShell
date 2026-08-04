@@ -3,6 +3,9 @@
 
 #include <qdebug.h>
 
+namespace niri
+{
+
 NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 {
 	QString sockAddr = std::getenv("NIRI_SOCKET");
@@ -50,7 +53,8 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 	}
 	else
 	{
-		// qDebug() << "Is Response";
+		auto out = glz::write<glzOpts{}>(response).value_or("ERROR");
+		qDebug().noquote() << out;
 	}
 	niri::Event event;
 	err = glz::read<glzOpts{}>(event, message);
@@ -62,6 +66,15 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 	}
 	else
 	{
-		// qDebug() << "Is Event:" << event.event.index();
+		auto eventSwitch = Overload{
+			[this](WindowFocusChangedEvent& event) -> void
+			{ emit ActiveWindowChanged("test"); },
+			[](auto) -> void { }, // NOLINT
+		};
+		std::visit(eventSwitch, event.event);
+		// auto out = glz::write<glzOpts{}>(event).value_or("ERROR");
+		// qDebug().noquote() << out;
 	}
 }
+
+} //namespace niri

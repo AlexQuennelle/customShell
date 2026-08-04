@@ -3,11 +3,38 @@
 #include <QObject>
 
 class IWorkspaceManager : public QObject
-{ };
-class ICompositorBackend : public QObject
-{ };
+{
+	Q_OBJECT; // NOLINT
 
-class Workspace : QObject
+	public:
+	virtual ~IWorkspaceManager() = default;
+
+	virtual auto GetWorkspaces(QStringView outputName) -> QList<QObject*> = 0;
+	virtual void CreateWorkspace(QStringView name) = 0;
+	virtual void RemoveWorkspace(QStringView id) = 0;
+	virtual void SetWorkspaceOutput(QStringView id, QStringView outputName) = 0;
+	virtual void SetWorkspaceName(QStringView id, QStringView name) = 0;
+	virtual void SetWorkspaceIndex(QStringView id, uint64_t index) = 0;
+	virtual void ActivateWorkspace(QStringView id) = 0;
+
+	signals:
+	void WorkspacesChanged();
+};
+Q_DECLARE_INTERFACE(IWorkspaceManager, "WorkspaceManagerInterfaceClass")
+class ICompositorBackend : public QObject
+{
+	Q_OBJECT; // NOLINT
+
+	public:
+	virtual ~ICompositorBackend() = default;
+
+	signals:
+	// TODO: Make proper struct to pass
+	void ActiveWindowChanged(QString data);
+};
+Q_DECLARE_INTERFACE(ICompositorBackend, "CompositorInterfaceClass")
+
+class Workspace : public QObject
 {
 	Q_OBJECT; // NOLINT
 

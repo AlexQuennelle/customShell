@@ -123,11 +123,14 @@ target_sources("${CMAKE_PROJECT_NAME}"
     include/shellController.h
     src/shellController.cpp
 
+    include/compositors/compositorBackend.h
     include/compositors/niriBackend.h
     src/compositors/niriBackend.cpp
     include/compositors/waylandBackend.hpp
     src/compositors/waylandBackend.cpp
 
+    include/workspace/niriWorkspaceManager.h
+    src/workspace/niriWorkspaceManager.cpp
     include/workspace/extWorkspaceManager.h
     src/workspace/extWorkspaceManager.cpp
 )

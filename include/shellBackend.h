@@ -4,6 +4,7 @@
 #include "compositors/niriBackend.h"
 #include "compositors/waylandBackend.hpp"
 #include "workspace/extWorkspaceManager.h"
+#include "workspace/niriWorkspaceManager.h"
 
 #include <QDebug>
 #include <QObject>
@@ -44,9 +45,10 @@ class ShellBackend : public QObject
 	private:
 	ShellBackend(QObject* parent = nullptr) : QObject(parent)
 	{
-		// this->compositor = std::make_unique<NiriBackend>();
-		this->compositor = std::make_unique<WaylandBackend>();
-		this->workspaceManager = std::make_unique<WLWorkspaceManager>();
+		this->compositor = std::make_unique<niri::NiriBackend>();
+		this->workspaceManager = std::make_unique<niri::WorkspaceManager>();
+		// this->compositor = std::make_unique<WaylandBackend>();
+		// this->workspaceManager = std::make_unique<WLWorkspaceManager>();
 	};
 
 	std::unique_ptr<ICompositorBackend> compositor{nullptr};

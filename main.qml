@@ -5,6 +5,10 @@ import Shell
 Item {
     id: root
 
+    property WindowInfo activeWin: bar.activeWindow
+
+    onActiveWinChanged: {}
+
     Component.onCompleted: {}
 
     Rectangle {
@@ -20,16 +24,17 @@ Item {
             anchors {
                 fill: parent
             }
-            onClicked: mouse => {
-                // ShellBackend.TestPrint();
-            }
+            onClicked: mouse => {}
         }
         Text {
+            id: title
+
             anchors {
                 centerIn: parent
             }
 
-            text: "Bar"
+            text: bar.activeWindow.title
+            // text: "test"
             color: "white"
         }
     }

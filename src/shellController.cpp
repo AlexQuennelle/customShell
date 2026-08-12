@@ -4,25 +4,26 @@
 #include <QGuiApplication>
 #include <QQuickView>
 #include <memory>
+#include <qqmlcontext.h>
 
-ShellController::ShellController(QObject* parent) : QObject(parent)
+ShellController::ShellController(ShellBackend& backend, QObject* parent) :
+	QObject(parent), backend(backend)
 {
-	statusBar = std::make_unique<QQuickView>();
-	statusBar->setResizeMode(QQuickView::ResizeMode::SizeRootObjectToView);
-	statusBar->setSource(QUrl(QStringLiteral("qrc:/Shell/main.qml")));
-	statusBar->setHeight(40);
-	statusBar->setColor(Qt::transparent);
-	statusBar->create();
-	if (auto* layerWin = LayerShellQt::Window::get(statusBar.get()))
+	this->connect(&backend, &ShellBackend::ActiveWindowChanged, this,
+				  &ShellController::OnActiveWindowChanged);
+	for (auto* screen : qGuiApp->screens())
 	{
-		LayerShellQt::Window::Anchors barAnchors = {
-			LayerShellQt::Window::AnchorTop,
-			LayerShellQt::Window::AnchorLeft,
-			LayerShellQt::Window::AnchorRight,
-		};
-		layerWin->setAnchors(barAnchors);
-		layerWin->setExclusiveZone(statusBar->height());
-		layerWin->setLayer(LayerShellQt::Window::LayerTop);
+		this->statusBars[screen->name()] = std::make_unique<StatusBar>();
+		auto& statusBar = this->statusBars[screen->name()];
+		statusBar->rootContext()->setContextProperty("bar", statusBar.get());
+		statusBar->setSource(QUrl(QStringLiteral("qrc:/Shell/main.qml")));
+		statusBar->Init();
+		qDebug() << statusBar->screen()->name();
+		statusBar->show();
 	}
-	statusBar->show();
+}
+void ShellController::OnActiveWindowChanged(const QString& output,
+											std::optional<WindowInfo&> window)
+{
+	this->statusBars[output]->SetActiveWindow(window);
 }

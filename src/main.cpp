@@ -13,13 +13,8 @@ auto main(int argc, char* argv[]) -> int
 
 	QGuiApplication app(argc, argv);
 
-	// QQuickView view;
-
-	ShellBackend& backend = ShellBackend::Instance();
-	qmlRegisterSingletonInstance("Shell.ShellBackend", 1, 0, "Backend",
-								 &backend);
-
-	ShellController controller;
+	ShellBackend backend;
+	ShellController controller{backend};
 
 	return app.exec();
 }

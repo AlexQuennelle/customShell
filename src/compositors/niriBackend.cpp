@@ -1,5 +1,5 @@
 #include "compositors/niriBackend.h"
-#include "compositors/compositorBackend.h"
+#include "compositorBackend.h"
 #include "compositors/niriTypes.hpp"
 
 #include <qdebug.h>
@@ -25,7 +25,7 @@ NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 	eventSock.connectToServer(sockAddr);
 
 	connect(&cmdSock, &QLocalSocket::connected,
-			[this]() -> void
+			[]() -> void
 			{
 				// cmdSock.write("{\"Action\":{\"FocusWorkspace\":{\"reference\":{"
 				// 			  "\"Index\":1}}}}\n");
@@ -68,21 +68,130 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 	else
 	{
 		auto eventSwitch = Overload{
+			[this](WorkspacesChangedEvent& event) -> void
+			{
+				for (auto& data : event.workspaces)
+				{
+					const QString nameStr
+						= QString::fromStdString(data.name.value_or(""));
+					const QString output
+						= QString::fromStdString(data.output.value_or(""));
+
+					auto [it, success] = this->workspaces.try_emplace(
+						data.id, QString::number(data.id), nameStr, output,
+						data.active_window_id, data.idx, data.is_urgent,
+						data.is_active, data.is_focused);
+					auto& [_, workspace] = *it;
+
+					if (!success)
+					{
+						workspace.SetName(nameStr);
+						workspace.SetOutput(output);
+						workspace.SetIndex(data.idx);
+						workspace.SetFocused(data.is_focused);
+						workspace.SetActive(data.is_active);
+						workspace.SetFocused(data.is_focused);
+					}
+					if (data.is_active || data.is_focused)
+					{
+						auto window = workspace.GetActiveWindowID().transform(
+							[this](auto id) -> auto&
+							{ return this->windows[id]; });
+						emit ActiveWindowChanged(workspace.GetOutput(), window);
+					}
+				}
+				namespace rv = std::views;
+				auto openWorkspaces
+					= event.workspaces
+					  | rv::transform([](auto& value) -> uint64_t
+									  { return value.id; })
+					  | std::ranges::to<std::unordered_set<uint64_t>>();
+				std::erase_if(this->workspaces,
+							  [&openWorkspaces](auto& pair) -> bool
+							  { return !openWorkspaces.contains(pair.first); });
+			},
+			[this](WorkspaceUrgencyChangedEvent& event) -> void
+			{ this->workspaces[event.id].SetUrgent(event.urgent); },
+			[this](WorkspaceActivatedEvent& event) -> void
+			{
+				auto& workspace = this->workspaces[event.id];
+				workspace.SetActive(true);
+				auto window = workspace.GetActiveWindowID().transform(
+					[this](auto id) -> auto& { return this->windows[id]; });
+				emit ActiveWindowChanged(workspace.GetOutput(), window);
+				if (event.focused)
+				{
+					workspace.SetFocused(true);
+					this->focusedWorkspaceID = event.id;
+				}
+			},
+			[this](WorkspaceActiveWindowChangedEvent& event) -> void
+			{
+				auto& key = this->workspaces[event.workspace_id].GetOutput();
+				auto window = event.active_window_id.transform(
+					[this](auto& id) -> auto& { return this->windows[id]; });
+				emit ActiveWindowChanged(key, window);
+			},
+			[this](WindowsChangedEvent& event) -> void
+			{
+				for (auto& window : event.windows)
+				{
+					this->windows[window.id] = WindowInfo(
+						QString::fromStdString(window.title.value_or("")),
+						QString::fromStdString(window.app_id.value_or("")));
+					if (window.is_focused && window.workspace_id.has_value())
+					{
+						auto& workspace
+							= this->workspaces[window.workspace_id.value()];
+						workspace.SetActiveWindowId(window.id);
+						workspace.SetFocused(true);
+						this->workspaces[this->focusedWorkspaceID].SetFocused(
+							false);
+						this->focusedWorkspaceID = window.workspace_id.value();
+						emit ActiveWindowChanged(workspace.GetOutput(),
+												 this->windows[window.id]);
+					}
+				}
+			},
 			[this](WindowOpenedOrChangedEvent& event) -> void
 			{
 				auto& window{event.window};
-				this->windows[window.id]
-					= WindowInfo(window.title.value_or("").c_str(),
-								  window.app_id.value_or("").c_str());
-				qDebug() << "New Window";
+				this->windows[window.id] = WindowInfo(
+					QString::fromStdString(window.title.value_or("")),
+					QString::fromStdString(window.app_id.value_or("")));
+				if (window.is_focused && window.workspace_id.has_value())
+				{
+					auto& workspace
+						= this->workspaces[window.workspace_id.value()];
+					workspace.SetActiveWindowId(window.id);
+					workspace.SetFocused(true);
+					this->workspaces[this->focusedWorkspaceID].SetFocused(
+						false);
+					emit ActiveWindowChanged(workspace.GetOutput(),
+											 this->windows[window.id]);
+					this->focusedWorkspaceID = window.workspace_id.value();
+				}
 			},
-			[](WindowFocusChangedEvent& event) -> void
-			{ qDebug() << event.id.value_or(0); },
-			[](auto) -> void { }, // NOLINT
+			[this](WindowClosedEvent& event) -> void
+			{ this->windows.erase(event.id); },
+			[this](WindowFocusChangedEvent& event) -> void
+			{
+				auto& workspace = this->workspaces[this->focusedWorkspaceID];
+				if (event.id.has_value())
+				{
+					workspace.SetActiveWindowId(event.id);
+				}
+				auto window = event.id.transform([this](auto& id) -> auto&
+												 { return this->windows[id]; });
+				emit ActiveWindowChanged(workspace.GetOutput(), window);
+			},
+			[](ScreenshotCapturedEvent& event) -> void
+			{
+				// TODO: Send notification
+			},
+			[](auto& /*event*/) -> void { return; }, // Default case
 		};
 		std::visit(eventSwitch, event.event);
-		// auto out = glz::write<glzOpts{}>(event).value_or("ERROR");
-		// qDebug().noquote() << out;
 	} //namespace niri
 }
 

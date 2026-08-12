@@ -1,10 +1,11 @@
 #pragma once
 
-#include "compositors/compositorBackend.h"
+#include "compositorBackend.h"
 
 #include <QQmlEngine>
 #include <QWaylandClientExtensionTemplate>
-#include <qwayland-ext-workspace-v1.h>
+// #include <qwayland-ext-workspace-v1.h>
+#include "build/qwayland-ext-workspace-v1.h"
 
 class ExtWorkspaceManagerBridge;
 class WLWorkspaceGroup;

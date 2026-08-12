@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 4.2.1)
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_COLOR_DIAGNOSTICS ON)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 message("Build type: ${CMAKE_BUILD_TYPE}")
 
@@ -10,7 +12,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-option(CONFIG_USE_ASAN "Whether to enable address sanitizer" OFF)
+option(CONFIG_USE_ASAN "Whether to enable address sanitizer" ON)
 option(CONFIG_USE_UBSAN "Whether to enable undefined behavior sanitizer" OFF)
 
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
@@ -51,9 +53,14 @@ qt_add_qml_module(${CMAKE_PROJECT_NAME}
         include/shellBackend.h
         src/shellBackend.cpp
 
+        include/compositorBackend.h
+        src/compositorBackend.cpp
+
         include/workspace/extWorkspaceManager.h
         src/workspace/extWorkspaceManager.cpp
 )
+# set(QML_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/include")
+# target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${QML_INCLUDES})
 qt_generate_wayland_protocol_client_sources(${CMAKE_PROJECT_NAME}
     FILES ${CMAKE_CURRENT_SOURCE_DIR}/protocols/ext-workspace-v1.xml
 )
@@ -117,14 +124,18 @@ target_sources("${CMAKE_PROJECT_NAME}"
     PRIVATE
     src/main.cpp
 
+    include/statusBar.hpp
+    src/statusBar.cpp
+
     include/shellBackend.h
     src/shellBackend.cpp
 
     include/shellController.h
     src/shellController.cpp
 
-    include/compositors/compositorBackend.h
-    src/compositors/compositorBackend.cpp
+    include/compositorBackend.h
+    src/compositorBackend.cpp
+
     include/compositors/niriBackend.h
     src/compositors/niriBackend.cpp
     include/compositors/waylandBackend.hpp

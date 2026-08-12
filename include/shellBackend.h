@@ -1,6 +1,6 @@
 #pragma once
 
-#include "compositors/compositorBackend.h"
+#include "compositorBackend.h"
 #include "compositors/niriBackend.h"
 #include "compositors/waylandBackend.hpp"
 #include "workspace/extWorkspaceManager.h"
@@ -13,45 +13,32 @@
 
 class ShellBackend : public QObject
 {
-	Q_OBJECT
-	QML_ELEMENT
-	QML_SINGLETON
-	Q_PROPERTY(bool IsTest READ IsTest WRITE SetTest)
+	Q_OBJECT; // NOLINT
 
 	public:
-	static auto Instance() -> ShellBackend&
-	{
-		static ShellBackend instance{};
-		return instance;
-	}
-	static auto create(QQmlEngine* qmlEngine, QJSEngine* jsEngine)
-		-> ShellBackend*
-	{
-		Q_UNUSED(qmlEngine)
-		Q_UNUSED(jsEngine)
-		return &Instance();
-	}
-
-	auto IsTest() const -> bool { return test; }
-	void SetTest(bool value) { test = value; }
+	// auto GetActiveWindow(const QString& output) -> WindowInfo&
+	// {
+	// 	return this->compositor->GetActiveWindow(output);
+	// }
 
 	void Update() { };
 
-	Q_INVOKABLE void TestPrint() { qDebug("Hello"); }
+	// Q_INVOKABLE void TestPrint() { qDebug("Hello"); }
 
-	signals:
-	void TestSignal();
-
-	private:
 	ShellBackend(QObject* parent = nullptr) : QObject(parent)
 	{
 		this->compositor = std::make_unique<niri::NiriBackend>();
+		this->connect(compositor.get(), &niri::NiriBackend::ActiveWindowChanged,
+					  this, &ShellBackend::ActiveWindowChanged);
 		this->workspaceManager = std::make_unique<niri::WorkspaceManager>();
 		// this->compositor = std::make_unique<WaylandBackend>();
 		// this->workspaceManager = std::make_unique<WLWorkspaceManager>();
 	};
+	signals:
+	void ActiveWindowChanged(const QString& output,
+							 std::optional<WindowInfo&> window);
 
+	private:
 	std::unique_ptr<ICompositorBackend> compositor{nullptr};
 	std::unique_ptr<IWorkspaceManager> workspaceManager{nullptr};
-	bool test{false};
 };

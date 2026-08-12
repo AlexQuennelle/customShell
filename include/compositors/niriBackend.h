@@ -1,6 +1,6 @@
 #pragma once
 
-#include "compositors/compositorBackend.h"
+#include "compositorBackend.h"
 
 #include <QLocalSocket>
 
@@ -20,19 +20,21 @@ class NiriBackend : public ICompositorBackend
 	auto operator=(const NiriBackend&) -> NiriBackend& = delete;
 	auto operator=(NiriBackend&&) -> NiriBackend& = delete;
 
+	signals:
+	void WorkspaceAddedOrModified(Workspace* workspace);
+
 	private:
 	void ReadMessages();
 	void ProcessMessage(const std::string_view message);
 
-	auto GetActiveWindow(QStringView outputName) -> WindowInfo& override
-	{
-		return activeWindows.begin()->second;
-	}
+	// auto GetActiveWindow(const QString& outputName) -> WindowInfo& override;
 
-	std::map<QString, WindowInfo> activeWindows;
-	std::map<uint64_t, WindowInfo> windows;
+	// std::unordered_map<QString, WindowInfo> activeWindows;
+	std::unordered_map<uint64_t, WindowInfo> windows;
+	std::unordered_map<uint64_t, Workspace> workspaces;
 	QLocalSocket eventSock;
 	QLocalSocket cmdSock;
+	uint64_t focusedWorkspaceID{};
 };
 
 } //namespace niri

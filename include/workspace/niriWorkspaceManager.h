@@ -1,6 +1,6 @@
 #pragma once
 
-#include "compositors/compositorBackend.h"
+#include "compositorBackend.h"
 
 namespace niri
 {
@@ -27,7 +27,10 @@ class WorkspaceManager : public IWorkspaceManager
 	void ActivateWorkspace(QStringView id) override;
 
 	private:
-	std::map<QString, std::vector<Workspace>> groups;
+	//		<Output	, Group		 <Workspace>>
+	std::unordered_map<QString, std::vector<Workspace>> groups;
+	//		<ID		, Workspace>
+	std::unordered_map<QString, Workspace> workspaces;
 };
 
 } //namespace niri

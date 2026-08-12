@@ -1,4 +1,4 @@
-#include "compositors/compositorBackend.h"
+#include "compositorBackend.h"
 
 WindowInfo::WindowInfo(QString title, QString appID) :
 	title(std::move(title)), appID(std::move(appID))
@@ -15,6 +15,19 @@ void WindowInfo::SetAppID(const QString& newAppID)
 	this->appID = newAppID;
 	emit AppIDChanged(this->appID);
 }
+auto WindowInfo::operator=(const WindowInfo& other) -> WindowInfo&
+{
+	if (&other == this)
+		return *this;
+
+	this->title = other.title;
+	this->appID = other.appID;
+
+	emit TitleChanged(this->title);
+	emit AppIDChanged(this->appID);
+
+	return *this;
+};
 auto WindowInfo::operator=(WindowInfo&& other) noexcept -> WindowInfo&
 {
 	this->title = other.title;

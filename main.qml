@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Window
+import QtQuick.Controls
 import Shell
 
 Item {
@@ -11,14 +12,15 @@ Item {
 
     Component.onCompleted: {}
 
-    Rectangle {
+    Pane {
         anchors {
-            horizontalCenter: parent.horizontalCenter
+            // horizontalCenter: parent.horizontalCenter
+            fill: parent
         }
         visible: true
-        width: 400
-        height: parent.height
-        color: "red"
+        // width: parent.width
+        // height: parent.height
+        // color: "red"
 
         MouseArea {
             anchors {
@@ -26,16 +28,22 @@ Item {
             }
             onClicked: mouse => {}
         }
-        Text {
-            id: title
-
+        Label {
             anchors {
                 centerIn: parent
             }
 
-            text: bar.activeWindow.title
-            // text: "test"
-            color: "white"
+            text: root.activeWin !== null ? root.activeWin.title : ""
         }
+        // Text {
+        //     id: title
+        //
+        //     anchors {
+        //         centerIn: parent
+        //     }
+        //
+        //     text: root.activeWin !== null ? root.activeWin.title : ""
+        //     color: "white"
+        // }
     }
 }

@@ -17,6 +17,8 @@ void StatusBar::Init()
 			LayerShellQt::Window::AnchorLeft,
 			LayerShellQt::Window::AnchorRight,
 		};
+		layerWin->setKeyboardInteractivity(
+			LayerShellQt::Window::KeyboardInteractivityNone);
 		layerWin->setAnchors(anchors);
 		layerWin->setExclusiveZone(this->height());
 		layerWin->setLayer(LayerShellQt::Window::LayerTop);

@@ -142,7 +142,7 @@ class IWorkspaceManager : public QObject
 	virtual void ActivateWorkspace(QStringView id) = 0;
 
 	signals:
-	void WorkspacesChanged();
+	void WorkspacesChanged(const QString& output, QList<QObject*>& workspaces);
 };
 Q_DECLARE_INTERFACE(IWorkspaceManager, "WorkspaceManagerInterfaceClass")
 class ICompositorBackend : public QObject
@@ -152,7 +152,8 @@ class ICompositorBackend : public QObject
 	public:
 	virtual ~ICompositorBackend() = default;
 
-	// virtual auto GetActiveWindow(const QString& outputName) -> WindowInfo& = 0;
+	// virtual auto GetActiveWindow(const QString& outputName) -> WindowInfo& =
+	// 0;
 
 	signals:
 	void ActiveWindowChanged(const QString& output,

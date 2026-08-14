@@ -13,7 +13,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 option(CONFIG_USE_ASAN "Whether to enable address sanitizer" ON)
-option(CONFIG_USE_UBSAN "Whether to enable undefined behavior sanitizer" OFF)
+option(CONFIG_USE_UBSAN "Whether to enable undefined behavior sanitizer" ON)
 
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 

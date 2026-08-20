@@ -21,7 +21,9 @@ class NiriBackend : public ICompositorBackend
 	auto operator=(NiriBackend&&) -> NiriBackend& = delete;
 
 	signals:
-	void WorkspaceAddedOrModified(Workspace* workspace);
+	// void WorkspaceAddedOrModified(Workspace* workspace);
+	void WorkspacesChanged(const QString& output,
+						   QList<Workspace*>& workspaces);
 
 	private:
 	void ReadMessages();
@@ -32,6 +34,7 @@ class NiriBackend : public ICompositorBackend
 	// std::unordered_map<QString, WindowInfo> activeWindows;
 	std::unordered_map<uint64_t, WindowInfo> windows;
 	std::unordered_map<uint64_t, Workspace> workspaces;
+	QHash<QString, QList<Workspace*>> workspaceGroups;
 	QLocalSocket eventSock;
 	QLocalSocket cmdSock;
 	uint64_t focusedWorkspaceID{};

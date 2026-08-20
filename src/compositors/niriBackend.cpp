@@ -70,6 +70,7 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 		auto eventSwitch = Overload{
 			[this](WorkspacesChangedEvent& event) -> void
 			{
+				workspaceGroups.clear();
 				for (auto& data : event.workspaces)
 				{
 					const QString nameStr
@@ -99,6 +100,7 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 							{ return this->windows[id]; });
 						emit ActiveWindowChanged(workspace.GetOutput(), window);
 					}
+					workspaceGroups[output].push_back(&workspace);
 				}
 				namespace rv = std::views;
 				auto openWorkspaces
@@ -109,6 +111,11 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 				std::erase_if(this->workspaces,
 							  [&openWorkspaces](auto& pair) -> bool
 							  { return !openWorkspaces.contains(pair.first); });
+				for (const auto& [key, val] : workspaceGroups.asKeyValueRange())
+				{
+					std::ranges::sort(val, {}, &Workspace::GetIndex);
+					emit this->WorkspacesChanged(key, val);
+				}
 			},
 			[this](WorkspaceUrgencyChangedEvent& event) -> void
 			{ this->workspaces[event.id].SetUrgent(event.urgent); },

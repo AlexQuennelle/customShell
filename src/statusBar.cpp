@@ -30,3 +30,20 @@ auto StatusBar::GetActiveWindow() -> WindowInfo*
 		.transform([](auto& val) -> auto* { return &val; })
 		.value_or(nullptr);
 }
+void StatusBar::SetActiveWindow(std::optional<WindowInfo&> win)
+{
+	this->activeWindow = win;
+	emit ActiveWindowChanged(
+		this->activeWindow
+			.transform([](auto& val) -> auto* { return &val; })
+			.value_or(nullptr));
+}
+auto StatusBar::GetWorkspaces() -> QList<Workspace*>
+{
+	return workspaces.value_or({});
+}
+void StatusBar::SetWorkspaces(QList<Workspace*>& workspaces)
+{
+	this->workspaces = workspaces;
+	emit this->WorkspacesChanged();
+}

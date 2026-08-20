@@ -18,6 +18,7 @@ class ShellController : public QObject
 
 	void OnActiveWindowChanged(const QString& output,
 							   std::optional<WindowInfo&> window);
+	void OnWorkspacesChanged(const QString& output, QList<Workspace*>& group);
 
 	std::optional<ShellBackend&> backend;
 	std::map<QString, std::unique_ptr<StatusBar>> statusBars;

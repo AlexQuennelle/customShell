@@ -11,6 +11,8 @@ ShellController::ShellController(ShellBackend& backend, QObject* parent) :
 {
 	this->connect(&backend, &ShellBackend::ActiveWindowChanged, this,
 				  &ShellController::OnActiveWindowChanged);
+	this->connect(&backend, &ShellBackend::WorkspacesChanged, this,
+				  &ShellController::OnWorkspacesChanged);
 	for (auto* screen : qGuiApp->screens())
 	{
 		this->statusBars[screen->name()] = std::make_unique<StatusBar>();
@@ -27,3 +29,8 @@ void ShellController::OnActiveWindowChanged(const QString& output,
 {
 	this->statusBars[output]->SetActiveWindow(window);
 }
+void ShellController::OnWorkspacesChanged(const QString& output,
+										  QList<Workspace*>& group)
+{
+	this->statusBars[output]->SetWorkspaces(group);
+};

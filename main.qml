@@ -22,6 +22,17 @@ Item {
         // height: parent.height
         // color: "red"
 
+        Row {
+            Repeater {
+                model: bar.workspaces
+                Rectangle {
+                    color: modelData.active ? "Red" : "Grey"
+                    height: 10
+                    width: 10
+                }
+            }
+        }
+
         MouseArea {
             anchors {
                 fill: parent

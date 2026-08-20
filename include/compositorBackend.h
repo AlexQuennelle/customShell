@@ -142,7 +142,8 @@ class IWorkspaceManager : public QObject
 	virtual void ActivateWorkspace(QStringView id) = 0;
 
 	signals:
-	void WorkspacesChanged(const QString& output, QList<QObject*>& workspaces);
+	void WorkspacesChanged(const QString& output,
+						   QList<Workspace*>& workspaces);
 };
 Q_DECLARE_INTERFACE(IWorkspaceManager, "WorkspaceManagerInterfaceClass")
 class ICompositorBackend : public QObject

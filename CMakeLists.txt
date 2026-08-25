@@ -50,6 +50,8 @@ qt_add_qml_module(${CMAKE_PROJECT_NAME}
     SOURCES
         src/main.cpp
 
+        include/qmlTypes.hpp
+
         include/shellBackend.h
         src/shellBackend.cpp
 

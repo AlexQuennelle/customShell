@@ -92,9 +92,11 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 						workspace.SetFocused(data.is_focused);
 						workspace.SetActive(data.is_active);
 						workspace.SetFocused(data.is_focused);
+						workspace.SetActiveWindowId(data.active_window_id);
 					}
 					if (data.is_active || data.is_focused)
 					{
+						this->activeWorkspaces[workspace.GetOutput()] = data.id;
 						auto window = workspace.GetActiveWindowID().transform(
 							[this](auto id) -> auto&
 							{ return this->windows[id]; });
@@ -122,6 +124,9 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 			[this](WorkspaceActivatedEvent& event) -> void
 			{
 				auto& workspace = this->workspaces[event.id];
+				this->workspaces[activeWorkspaces[workspace.GetOutput()]]
+					.SetActive(false);
+				this->activeWorkspaces[workspace.GetOutput()] = event.id;
 				workspace.SetActive(true);
 				auto window = workspace.GetActiveWindowID().transform(
 					[this](auto id) -> auto& { return this->windows[id]; });

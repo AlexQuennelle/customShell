@@ -7,11 +7,12 @@
 
 class WindowInfo : public QObject
 {
-	Q_OBJECT; // NOLINT
-	QML_ELEMENT QML_UNCREATABLE("");
+	Q_OBJECT;	 // NOLINT
+	QML_ELEMENT; // NOLINT
+	QML_UNCREATABLE("");
 
 	Q_PROPERTY(QString title READ GetTitle NOTIFY TitleChanged FINAL)
-	Q_PROPERTY(QString appID READ GetAppID NOTIFY AppIDChanged FINAL)
+	Q_PROPERTY(QString appID READ GetAppID NOTIFY AppIDChanged FINAL); // NOLINT
 
 	public:
 	WindowInfo() = default;
@@ -33,7 +34,7 @@ class WindowInfo : public QObject
 	void AppIDChanged(const QString& appID);
 
 	private:
-	QString title{"Bwah"};
+	QString title{};
 	QString appID{};
 };
 

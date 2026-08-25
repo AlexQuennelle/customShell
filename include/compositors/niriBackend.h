@@ -29,12 +29,10 @@ class NiriBackend : public ICompositorBackend
 	void ReadMessages();
 	void ProcessMessage(const std::string_view message);
 
-	// auto GetActiveWindow(const QString& outputName) -> WindowInfo& override;
-
-	// std::unordered_map<QString, WindowInfo> activeWindows;
 	std::unordered_map<uint64_t, WindowInfo> windows;
 	std::unordered_map<uint64_t, Workspace> workspaces;
 	QHash<QString, QList<Workspace*>> workspaceGroups;
+	QHash<QString, uint64_t> activeWorkspaces;
 	QLocalSocket eventSock;
 	QLocalSocket cmdSock;
 	uint64_t focusedWorkspaceID{};

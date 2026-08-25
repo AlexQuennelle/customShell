@@ -25,9 +25,17 @@ Item {
         Row {
             Repeater {
                 model: bar.workspaces
+
                 Rectangle {
+                    required property Workspace modelData
+
+                    WorkspaceButton {
+                        id: button
+                        anchors.fill: parent
+                    }
+
                     color: modelData.active ? "Red" : "Grey"
-                    height: 10
+                    height: button.hovered ? 15 : 10
                     width: 10
                 }
             }

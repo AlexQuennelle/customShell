@@ -14,39 +14,39 @@ Item {
 
     Pane {
         anchors {
-            // horizontalCenter: parent.horizontalCenter
             fill: parent
         }
         visible: true
-        // width: parent.width
-        // height: parent.height
-        // color: "red"
 
         Row {
             Repeater {
                 model: bar.workspaces
 
-                Rectangle {
+                WorkspaceButton {
+                    id: button
+
                     required property Workspace modelData
 
-                    WorkspaceButton {
-                        id: button
+                    height: button.hovered ? 25 : 20
+                    width: 20
+                    Rectangle {
                         anchors.fill: parent
+                        color: button.modelData.active ? "Red" : "Grey"
                     }
-
-                    color: modelData.active ? "Red" : "Grey"
-                    height: button.hovered ? 15 : 10
-                    width: 10
+                    onMousePressed: button => {
+                        if (button === Qt.LeftButton) {
+                            console.log(modelData.id)
+                            console.log("Left");
+                        } else if (button === Qt.RightButton) {
+                            console.log("Right");
+                        } else {
+                            console.log(button);
+                        }
+                    }
                 }
             }
         }
 
-        MouseArea {
-            anchors {
-                fill: parent
-            }
-            onClicked: mouse => {}
-        }
         Label {
             anchors {
                 centerIn: parent
@@ -54,15 +54,5 @@ Item {
 
             text: root.activeWin !== null ? root.activeWin.title : ""
         }
-        // Text {
-        //     id: title
-        //
-        //     anchors {
-        //         centerIn: parent
-        //     }
-        //
-        //     text: root.activeWin !== null ? root.activeWin.title : ""
-        //     color: "white"
-        // }
     }
 }

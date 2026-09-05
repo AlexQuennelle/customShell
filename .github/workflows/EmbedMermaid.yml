@@ -1,0 +1,16 @@
+name: embed-mermaid-file
+on:
+  push:
+    paths:
+      - 'Shell.mermaid'
+      - 'README.md'
+  pull_request: 
+    paths:
+      - 'Shell.mermaid'
+      - 'README.md'
+jobs:
+  replace-diagram:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sed -i '/^```mermaid/,/^```/{/^```/!d}' README.md
+      - run: sed -i '/^```mermaid/ r Shell.mermaid' README.md

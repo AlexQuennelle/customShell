@@ -11,6 +11,12 @@ on:
 jobs:
   replace-diagram:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
+      - uses: actions/checkout@v4
       - run: sed -i '/^```mermaid/,/^```/{/^```/!d}' README.md
       - run: sed -i '/^```mermaid/ r Shell.mermaid' README.md
+      - run: |
+          git add README.md
+          git commit -m "Embed Mermaid Diagram"

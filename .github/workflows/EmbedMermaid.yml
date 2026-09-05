@@ -22,3 +22,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git add README.md
           git commit -m "Embed Mermaid Diagram"
+          git push

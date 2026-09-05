@@ -17,11 +17,12 @@ class NiriBackend : public ICompositorBackend
 	NiriBackend(NiriBackend&&) = delete;
 	~NiriBackend() override = default;
 
+	auto Workspaces(const QString& outputName) -> QList<Workspace*>;
+
 	auto operator=(const NiriBackend&) -> NiriBackend& = delete;
 	auto operator=(NiriBackend&&) -> NiriBackend& = delete;
 
 	signals:
-	// void WorkspaceAddedOrModified(Workspace* workspace);
 	void WorkspacesChanged(const QString& output,
 						   QList<Workspace*>& workspaces);
 

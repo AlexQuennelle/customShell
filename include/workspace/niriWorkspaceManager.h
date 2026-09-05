@@ -1,6 +1,5 @@
 #pragma once
 
-// #include "compositorBackend.h"
 #include "compositors/niriBackend.h"
 
 namespace niri
@@ -19,20 +18,17 @@ class WorkspaceManager : public IWorkspaceManager
 	auto operator=(const WorkspaceManager&) -> WorkspaceManager& = delete;
 	auto operator=(WorkspaceManager&&) -> WorkspaceManager& = delete;
 
-	auto GetWorkspaces(QStringView outputName) -> QList<QObject*> override;
-	void CreateWorkspace(QStringView name) override;
-	void RemoveWorkspace(QStringView id) override;
-	void SetWorkspaceOutput(QStringView id, QStringView outputName) override;
-	void SetWorkspaceName(QStringView id, QStringView name) override;
-	void SetWorkspaceIndex(QStringView id, uint64_t index) override;
-	void ActivateWorkspace(QStringView id) override;
+	auto GetWorkspaces(const QString& outputName) -> QList<Workspace*> override;
+	void CreateWorkspace(const QString& name) override;
+	void RemoveWorkspace(const QString& id) override;
+	void SetWorkspaceOutput(const QString& id,
+							const QString& outputName) override;
+	void SetWorkspaceName(const QString& id, const QString& name) override;
+	void SetWorkspaceIndex(const QString& id, uint64_t index) override;
+	void ActivateWorkspace(const QString& id) override;
 
 	private:
 	std::optional<niri::NiriBackend&> backend;
-	//		<Output	, Group		 <Workspace>>
-	// std::unordered_map<QString, std::vector<Workspace>> groups;
-	//		<ID		, Workspace>
-	// std::unordered_map<QString, Workspace> workspaces;
 };
 
 } //namespace niri

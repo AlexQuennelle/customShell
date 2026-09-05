@@ -2,10 +2,9 @@
 
 #include "compositorBackend.h"
 
+#include "build/qwayland-ext-workspace-v1.h"
 #include <QQmlEngine>
 #include <QWaylandClientExtensionTemplate>
-// #include <qwayland-ext-workspace-v1.h>
-#include "build/qwayland-ext-workspace-v1.h"
 
 class ExtWorkspaceManagerBridge;
 class WLWorkspaceGroup;
@@ -20,13 +19,14 @@ class WLWorkspaceManager : public IWorkspaceManager
 	WLWorkspaceManager();
 	~WLWorkspaceManager() override;
 
-	auto GetWorkspaces(QStringView outputName) -> QList<QObject*> override;
-	void CreateWorkspace(QStringView name) override;
-	void RemoveWorkspace(QStringView id) override;
-	void SetWorkspaceOutput(QStringView id, QStringView outputName) override;
-	void SetWorkspaceName(QStringView id, QStringView name) override;
-	void SetWorkspaceIndex(QStringView id, uint64_t index) override;
-	void ActivateWorkspace(QStringView id) override;
+	auto GetWorkspaces(const QString& outputName) -> QList<Workspace*> override;
+	void CreateWorkspace(const QString& name) override;
+	void RemoveWorkspace(const QString& id) override;
+	void SetWorkspaceOutput(const QString& id,
+							const QString& outputName) override;
+	void SetWorkspaceName(const QString& id, const QString& name) override;
+	void SetWorkspaceIndex(const QString& id, uint64_t index) override;
+	void ActivateWorkspace(const QString& id) override;
 
 	private:
 	void
@@ -143,7 +143,7 @@ class WorkspaceHandle : public QObject,
 		std::span<uint32_t> coords{static_cast<uint32_t*>(coordinates->data),
 								   coordinates->size};
 		QString str;
-		for (auto n : coords)
+		for (auto n : coords) // NOLINT
 		{
 			str.append(std::to_string(n) + " ");
 		}

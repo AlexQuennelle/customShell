@@ -10,30 +10,22 @@ WorkspaceManager::WorkspaceManager(niri::NiriBackend& backend) :
 				  &IWorkspaceManager::WorkspacesChanged);
 }
 
-auto WorkspaceManager::GetWorkspaces(QStringView outputName) -> QList<QObject*>
+auto WorkspaceManager::GetWorkspaces(const QString& outputName)
+	-> QList<Workspace*>
 {
-	// namespace r = std::ranges;
-	// namespace rv = std::ranges::views;
-	// auto view = this->workspaces
-	// 			| rv::values
-	// 			| rv::filter([outputName](auto& val) -> bool
-	// 						 { return val.GetOutput() == outputName; })
-	// 			| rv::transform([](auto& val) -> auto* { return &val; })
-	// 			| r::to<QList<Workspace*>>();
-	// r::sort(view, std::less<>{}, &Workspace::GetIndex);
-	// return view
-	// 	   | rv::transform([](auto val) -> auto*
-	// 					   { return static_cast<QObject*>(val); })
-	// 	   | r::to<QList<QObject*>>();
-	return {};
+	return this->backend
+		.transform([&outputName](auto& val) -> QList<Workspace*>
+				   { return val.Workspaces(outputName); })
+		.value_or({});
 };
-void WorkspaceManager::CreateWorkspace(QStringView name) { }
-void WorkspaceManager::RemoveWorkspace(QStringView id) { }
-void WorkspaceManager::SetWorkspaceOutput(QStringView id,
-										  QStringView outputName)
+void WorkspaceManager::CreateWorkspace(const QString& name) { }
+void WorkspaceManager::RemoveWorkspace(const QString& id) { }
+void WorkspaceManager::SetWorkspaceOutput(const QString& id,
+										  const QString& outputName)
 { }
-void WorkspaceManager::SetWorkspaceName(QStringView id, QStringView name) { }
-void WorkspaceManager::SetWorkspaceIndex(QStringView id, uint64_t index) { }
-void WorkspaceManager::ActivateWorkspace(QStringView id) { };
+void WorkspaceManager::SetWorkspaceName(const QString& id, const QString& name)
+{ }
+void WorkspaceManager::SetWorkspaceIndex(const QString& id, uint64_t index) { }
+void WorkspaceManager::ActivateWorkspace(const QString& id) { };
 
 } //namespace niri

@@ -19,6 +19,7 @@ class WindowInfo : public QObject
 	WindowInfo(QString title, QString appID);
 	WindowInfo(const WindowInfo&) = delete;
 	WindowInfo(WindowInfo&&) = delete;
+	~WindowInfo() override = default;
 
 	auto GetTitle() const -> const QString&;
 	auto GetAppID() const -> const QString&;
@@ -121,38 +122,40 @@ class Workspace : public QObject
 	QString name;
 	QString output;
 	std::optional<uint64_t> activeWindowID;
-	uint8_t index;
-	bool urgent;
-	bool active;
-	bool focused;
+	uint8_t index{};
+	bool urgent{};
+	bool active{};
+	bool focused{};
 };
 
-class IWorkspaceManager : public QObject
+class IWorkspaceManager : public QObject // NOLINT
 {
 	Q_OBJECT; // NOLINT
 
 	public:
-	virtual ~IWorkspaceManager() = default;
+	~IWorkspaceManager() override = default;
 
-	virtual auto GetWorkspaces(QStringView outputName) -> QList<QObject*> = 0;
-	virtual void CreateWorkspace(QStringView name) = 0;
-	virtual void RemoveWorkspace(QStringView id) = 0;
-	virtual void SetWorkspaceOutput(QStringView id, QStringView outputName) = 0;
-	virtual void SetWorkspaceName(QStringView id, QStringView name) = 0;
-	virtual void SetWorkspaceIndex(QStringView id, uint64_t index) = 0;
-	virtual void ActivateWorkspace(QStringView id) = 0;
+	virtual auto GetWorkspaces(const QString& outputName)
+		-> QList<Workspace*> = 0;
+	virtual void CreateWorkspace(const QString& name) = 0;
+	virtual void RemoveWorkspace(const QString& id) = 0;
+	virtual void SetWorkspaceOutput(const QString& id,
+									const QString& outputName) = 0;
+	virtual void SetWorkspaceName(const QString& id, const QString& name) = 0;
+	virtual void SetWorkspaceIndex(const QString& id, uint64_t index) = 0;
+	virtual void ActivateWorkspace(const QString& id) = 0;
 
 	signals:
 	void WorkspacesChanged(const QString& output,
 						   QList<Workspace*>& workspaces);
 };
 Q_DECLARE_INTERFACE(IWorkspaceManager, "WorkspaceManagerInterfaceClass")
-class ICompositorBackend : public QObject
+class ICompositorBackend : public QObject // NOLINT
 {
 	Q_OBJECT; // NOLINT
 
 	public:
-	virtual ~ICompositorBackend() = default;
+	~ICompositorBackend() override = default;
 
 	// virtual auto GetActiveWindow(const QString& outputName) -> WindowInfo& =
 	// 0;

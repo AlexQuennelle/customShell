@@ -4,19 +4,22 @@ WLWorkspaceManager::WLWorkspaceManager() :
 	manager(new ExtWorkspaceManagerBridge(this))
 { }
 WLWorkspaceManager::~WLWorkspaceManager() { manager.reset(); }
-auto WLWorkspaceManager::GetWorkspaces(QStringView outputName)
-	-> QList<QObject*>
+auto WLWorkspaceManager::GetWorkspaces(const QString& outputName)
+	-> QList<Workspace*>
 {
 	return {};
 }
-void WLWorkspaceManager::CreateWorkspace(QStringView name) { }
-void WLWorkspaceManager::RemoveWorkspace(QStringView id) { }
-void WLWorkspaceManager::SetWorkspaceOutput(QStringView id,
-											QStringView outputName)
+void WLWorkspaceManager::CreateWorkspace(const QString& name) { }
+void WLWorkspaceManager::RemoveWorkspace(const QString& id) { }
+void WLWorkspaceManager::SetWorkspaceOutput(const QString& id,
+											const QString& outputName)
 { }
-void WLWorkspaceManager::SetWorkspaceName(QStringView id, QStringView name) { }
-void WLWorkspaceManager::SetWorkspaceIndex(QStringView id, uint64_t index) { }
-void WLWorkspaceManager::ActivateWorkspace(QStringView id) { };
+void WLWorkspaceManager::SetWorkspaceName(const QString& id,
+										  const QString& name)
+{ }
+void WLWorkspaceManager::SetWorkspaceIndex(const QString& id, uint64_t index) {
+}
+void WLWorkspaceManager::ActivateWorkspace(const QString& id) { };
 ;
 ;
 ;

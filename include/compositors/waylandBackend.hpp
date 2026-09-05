@@ -13,11 +13,6 @@ class WaylandBackend : public ICompositorBackend
 	WaylandBackend();
 	~WaylandBackend() override = default;
 
-	// auto GetActiveWindow(const QString& outputName) -> WindowInfo& override
-	// {
-	// 	return this->activeWindow;
-	// }
-
 	private:
 	wl_display* display{nullptr};
 	wl_compositor* compositor{nullptr};

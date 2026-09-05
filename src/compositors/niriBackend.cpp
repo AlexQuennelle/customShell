@@ -25,12 +25,17 @@ NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 	eventSock.connectToServer(sockAddr);
 
 	connect(&cmdSock, &QLocalSocket::connected,
-			[]() -> void
+			[this]() -> void
 			{
-				// cmdSock.write("{\"Action\":{\"FocusWorkspace\":{\"reference\":{"
-				// 			  "\"Index\":1}}}}\n");
+				this->cmdSock.write(
+					"{\"Action\":{\"FocusWorkspace\":{\"reference\":{"
+					"\"Index\":1}}}}\n");
 			});
 	cmdSock.connectToServer(sockAddr);
+}
+auto NiriBackend::Workspaces(const QString& outputName) -> QList<Workspace*>
+{
+	return this->workspaceGroups[outputName];
 }
 
 void NiriBackend::ReadMessages()
@@ -42,30 +47,18 @@ void NiriBackend::ReadMessages()
 		ProcessMessage(line);
 	}
 }
-void NiriBackend::ProcessMessage(const std::string_view message)
+void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 {
 	niri::Response response;
 	auto err = glz::read<glzOpts{}>(response, message);
-	if (err.ec != glz::error_code::none)
-	{
-#ifndef __clangd__
-		// qDebug() << glz::enum_to_string<glz::error_code>(err.ec);
-#endif
-	}
-	else
+	if (err.ec == glz::error_code::none)
 	{
 		auto out = glz::write<glzOpts{}>(response).value_or("ERROR");
 		qDebug().noquote() << out;
 	}
 	niri::Event event;
 	err = glz::read<glzOpts{}>(event, message);
-	if (err.ec != glz::error_code::none)
-	{
-#ifndef __clangd__
-		// qDebug() << glz::enum_to_string<glz::error_code>(err.ec);
-#endif
-	}
-	else
+	if (err.ec == glz::error_code::none)
 	{
 		auto eventSwitch = Overload{
 			[this](WorkspacesChangedEvent& event) -> void
@@ -197,14 +190,14 @@ void NiriBackend::ProcessMessage(const std::string_view message)
 												 { return this->windows[id]; });
 				emit ActiveWindowChanged(workspace.GetOutput(), window);
 			},
-			[](ScreenshotCapturedEvent& event) -> void
+			[](ScreenshotCapturedEvent& /*event*/) -> void
 			{
 				// TODO: Send notification
 			},
 			[](auto& /*event*/) -> void { return; }, // Default case
 		};
 		std::visit(eventSwitch, event.event);
-	} //namespace niri
+	}
 }
 
 } //namespace niri

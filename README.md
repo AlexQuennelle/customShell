@@ -2,6 +2,7 @@
 ## UML Diagram
 ```mermaid
 ```
+
 ## Dependencies
 - GCC 16.1 or later
 - Qt6

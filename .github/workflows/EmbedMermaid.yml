@@ -18,5 +18,7 @@ jobs:
       - run: sed -i '/^```mermaid/,/^```/{/^```/!d}' README.md
       - run: sed -i '/^```mermaid/ r Shell.mermaid' README.md
       - run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
           git add README.md
           git commit -m "Embed Mermaid Diagram"

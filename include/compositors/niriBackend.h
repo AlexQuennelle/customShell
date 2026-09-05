@@ -17,7 +17,14 @@ class NiriBackend : public ICompositorBackend
 	NiriBackend(NiriBackend&&) = delete;
 	~NiriBackend() override = default;
 
-	auto Workspaces(const QString& outputName) -> QList<Workspace*>;
+	// Workspace Manager API
+	auto GetWorkspaces(const QString& outputName) -> QList<Workspace*>;
+	void CreateWorkspace(const QString& name);
+	void RemoveWorkspace(const QString& id);
+	void SetWorkspaceOutput(const QString& id, const QString& outputName);
+	void SetWorkspaceName(const QString& id, const QString& name);
+	void SetWorkspaceIndex(const QString& id, uint64_t index);
+	void ActivateWorkspace(const QString& id);
 
 	auto operator=(const NiriBackend&) -> NiriBackend& = delete;
 	auto operator=(NiriBackend&&) -> NiriBackend& = delete;

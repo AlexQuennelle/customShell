@@ -33,15 +33,17 @@ Item {
                         anchors.fill: parent
                         color: button.modelData.active ? "Red" : "Grey"
                     }
-                    onMousePressed: button => {
+                    onClicked: button => {
                         if (button === Qt.LeftButton) {
-                            console.log(modelData.id)
-                            console.log("Left");
+                            bar.RequestActivateWorkspace(modelData.id);
                         } else if (button === Qt.RightButton) {
-                            console.log("Right");
+                            console.log("Right Click");
                         } else {
-                            console.log(button);
+                            console.log("Other");
                         }
+                    }
+                    onMousePressed: button => {
+                        if (button === Qt.LeftButton) {} else if (button === Qt.RightButton) {} else {}
                     }
                 }
             }

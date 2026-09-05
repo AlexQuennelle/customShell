@@ -24,18 +24,27 @@ NiriBackend::NiriBackend() : eventSock(this), cmdSock(this)
 			&NiriBackend::ReadMessages);
 	eventSock.connectToServer(sockAddr);
 
-	connect(&cmdSock, &QLocalSocket::connected,
-			[this]() -> void
-			{
-				this->cmdSock.write(
-					"{\"Action\":{\"FocusWorkspace\":{\"reference\":{"
-					"\"Index\":1}}}}\n");
-			});
 	cmdSock.connectToServer(sockAddr);
 }
-auto NiriBackend::Workspaces(const QString& outputName) -> QList<Workspace*>
+
+auto NiriBackend::GetWorkspaces(const QString& outputName) -> QList<Workspace*>
 {
 	return this->workspaceGroups[outputName];
+}
+void NiriBackend::CreateWorkspace(const QString& name) { }
+void NiriBackend::RemoveWorkspace(const QString& id) { }
+void NiriBackend::SetWorkspaceOutput(const QString& id,
+									 const QString& outputName)
+{ }
+void NiriBackend::SetWorkspaceName(const QString& id, const QString& name) { }
+void NiriBackend::SetWorkspaceIndex(const QString& id, uint64_t index) { }
+void NiriBackend::ActivateWorkspace(const QString& id)
+{
+	// TODO: Create action type to serialize to json with glaze
+	std::string cmd = R"({"Action":{"FocusWorkspace":{"reference":{"Id":)"
+					  + id.toStdString()
+					  + "}}}}\n";
+	this->cmdSock.write(cmd.c_str());
 }
 
 void NiriBackend::ReadMessages()

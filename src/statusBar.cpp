@@ -33,7 +33,7 @@ auto StatusBar::GetActiveWindow() -> WindowInfo*
 void StatusBar::SetActiveWindow(std::optional<WindowInfo&> win)
 {
 	this->activeWindow = win;
-	emit ActiveWindowChanged(
+	emit activeWindowChanged(
 		this->activeWindow
 			.transform([](auto& val) -> auto* { return &val; })
 			.value_or(nullptr));
@@ -45,5 +45,31 @@ auto StatusBar::GetWorkspaces() -> QList<Workspace*>
 void StatusBar::SetWorkspaces(QList<Workspace*>& workspaces)
 {
 	this->workspaces = workspaces;
-	emit this->WorkspacesChanged();
+	emit this->workspacesChanged();
 }
+
+void StatusBar::RequestCreateWorkspace(const QString& name)
+{
+	emit this->CreateWorkspaceRequested(name);
+}
+void StatusBar::RequestRemoveWorkspace(const QString& id)
+{
+	emit this->RemoveWorkspaceRequested(id);
+}
+void StatusBar::RequestSetWorkspaceOutput(const QString& id,
+										  const QString& outputName)
+{
+	emit this->SetWorkspaceOutputRequested(id, outputName);
+}
+void StatusBar::RequestSetWorkspaceName(const QString& id, const QString& name)
+{
+	emit this->SetWorkspaceNameRequested(id, name);
+}
+void StatusBar::RequestSetWorkspaceIndex(const QString& id, uint64_t index)
+{
+	emit this->SetWorkspaceIndexRequested(id, index);
+}
+void StatusBar::RequestActivateWorkspace(const QString& id)
+{
+	emit this->ActivateWorkspaceRequested(id);
+};

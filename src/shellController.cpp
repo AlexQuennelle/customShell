@@ -20,6 +20,26 @@ ShellController::ShellController(ShellBackend& backend, QObject* parent) :
 		statusBar->rootContext()->setContextProperty("bar", statusBar.get());
 		statusBar->setSource(QUrl(QStringLiteral("qrc:/Shell/main.qml")));
 		statusBar->Init();
+
+		this->connect(statusBar.get(), &StatusBar::CreateWorkspaceRequested,
+					  [this](const auto& name) -> void
+					  { this->backend->CreateWorkspace(name); });
+		this->connect(statusBar.get(), &StatusBar::RemoveWorkspaceRequested,
+					  [this](const auto& id) -> void
+					  { this->backend->RemoveWorkspace(id); });
+		this->connect(statusBar.get(), &StatusBar::SetWorkspaceOutputRequested,
+					  [this](const auto& id, const auto& outputName) -> void
+					  { this->backend->SetWorkspaceOutput(id, outputName); });
+		this->connect(statusBar.get(), &StatusBar::SetWorkspaceNameRequested,
+					  [this](const auto& id, const auto& name) -> void
+					  { this->backend->SetWorkspaceName(id, name); });
+		this->connect(statusBar.get(), &StatusBar::SetWorkspaceIndexRequested,
+					  [this](const auto& id, auto index) -> void
+					  { this->backend->SetWorkspaceIndex(id, index); });
+		this->connect(statusBar.get(), &StatusBar::ActivateWorkspaceRequested,
+					  [this](const auto& id) -> void
+					  { this->backend->ActivateWorkspace(id); });
+
 		qDebug() << statusBar->screen()->name();
 		statusBar->show();
 	}

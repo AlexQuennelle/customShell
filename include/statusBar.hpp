@@ -10,9 +10,9 @@ class StatusBar : public QQuickView
 	Q_OBJECT; // NOLINT
 
 	Q_PROPERTY(WindowInfo* activeWindow READ GetActiveWindow NOTIFY
-				   ActiveWindowChanged)
+				   activeWindowChanged)
 	Q_PROPERTY(QList<Workspace*> workspaces READ GetWorkspaces NOTIFY
-				   WorkspacesChanged)
+				   workspacesChanged)
 
 	public:
 	StatusBar(QWindow* parent = nullptr);
@@ -25,8 +25,26 @@ class StatusBar : public QQuickView
 	void SetWorkspaces(QList<Workspace*>& workspaces);
 
 	signals:
-	void ActiveWindowChanged(WindowInfo* newWin);
-	void WorkspacesChanged();
+	void activeWindowChanged(WindowInfo* newWin);
+	void workspacesChanged();
+
+	// For C++ use only
+	void CreateWorkspaceRequested(const QString& name);
+	void RemoveWorkspaceRequested(const QString& id);
+	void SetWorkspaceOutputRequested(const QString& id,
+									 const QString& outputName);
+	void SetWorkspaceNameRequested(const QString& id, const QString& name);
+	void SetWorkspaceIndexRequested(const QString& id, uint64_t index);
+	void ActivateWorkspaceRequested(const QString& id);
+
+	public slots:
+	void RequestCreateWorkspace(const QString& name);
+	void RequestRemoveWorkspace(const QString& id);
+	void RequestSetWorkspaceOutput(const QString& id,
+								   const QString& outputName);
+	void RequestSetWorkspaceName(const QString& id, const QString& name);
+	void RequestSetWorkspaceIndex(const QString& id, uint64_t index);
+	void RequestActivateWorkspace(const QString& id);
 
 	private:
 	std::optional<WindowInfo&> activeWindow;

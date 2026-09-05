@@ -1,10 +1,6 @@
 #pragma once
 
 #include "compositorBackend.h"
-#include "compositors/niriBackend.h"
-#include "compositors/waylandBackend.hpp"
-#include "workspace/extWorkspaceManager.h"
-#include "workspace/niriWorkspaceManager.h"
 
 #include <QDebug>
 #include <QObject>
@@ -16,19 +12,16 @@ class ShellBackend : public QObject
 	Q_OBJECT; // NOLINT
 
 	public:
-	ShellBackend(QObject* parent = nullptr) : QObject(parent)
-	{
-		this->compositor = std::make_unique<niri::NiriBackend>();
-		this->connect(compositor.get(), &niri::NiriBackend::ActiveWindowChanged,
-					  this, &ShellBackend::ActiveWindowChanged);
-		this->workspaceManager = std::make_unique<niri::WorkspaceManager>(
-			dynamic_cast<niri::NiriBackend&>(*compositor));
-		this->connect(workspaceManager.get(),
-					  &IWorkspaceManager::WorkspacesChanged, this,
-					  &ShellBackend::WorkspacesChanged);
-		// this->compositor = std::make_unique<WaylandBackend>();
-		// this->workspaceManager = std::make_unique<WLWorkspaceManager>();
-	};
+	ShellBackend(QObject* parent = nullptr);
+
+	// Workspace Manager API
+	auto GetWorkspaces(const QString& outputName) -> QList<Workspace*>;
+	void CreateWorkspace(const QString& name);
+	void RemoveWorkspace(const QString& id);
+	void SetWorkspaceOutput(const QString& id, const QString& outputName);
+	void SetWorkspaceName(const QString& id, const QString& name);
+	void SetWorkspaceIndex(const QString& id, uint64_t index);
+	void ActivateWorkspace(const QString& id);
 
 	signals:
 	void ActiveWindowChanged(const QString& output,

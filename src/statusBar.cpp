@@ -47,6 +47,17 @@ void StatusBar::SetWorkspaces(QList<Workspace*>& workspaces)
 	this->workspaces = workspaces;
 	emit this->workspacesChanged();
 }
+auto StatusBar::GetDateTime() -> QDateTime& { return this->dateTime; }
+auto StatusBar::GetClockString() -> QString
+{
+	return this->dateTime.toString("hh:mm AP");
+}
+
+void StatusBar::SetDateTime(QDateTime dateTime)
+{
+	this->dateTime = dateTime;
+	emit this->dateTimeChanged(this->dateTime);
+};
 
 void StatusBar::RequestCreateWorkspace(const QString& name)
 {

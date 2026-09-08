@@ -13,6 +13,10 @@ ShellBackend::ShellBackend(QObject* parent) : QObject(parent)
 		dynamic_cast<niri::NiriBackend&>(*compositor));
 	this->connect(workspaceManager.get(), &IWorkspaceManager::WorkspacesChanged,
 				  this, &ShellBackend::WorkspacesChanged);
+	this->connect(&this->clockTimer, &QTimer::timeout, [this]() -> void
+				  { emit this->TimeUpdated(QDateTime::currentDateTime()); });
+	this->clockTimer.start(100);
+	emit this->TimeUpdated(QDateTime::currentDateTime());
 	// this->compositor = std::make_unique<WaylandBackend>();
 	// this->workspaceManager = std::make_unique<WLWorkspaceManager>();
 }

@@ -24,11 +24,13 @@ class ShellBackend : public QObject
 	void ActivateWorkspace(const QString& id);
 
 	signals:
+	void TimeUpdated(const QDateTime currentTime);
 	void ActiveWindowChanged(const QString& output,
 							 std::optional<WindowInfo&> window);
 	void WorkspacesChanged(const QString& output, QList<Workspace*>& group);
 
 	private:
+	QTimer clockTimer{this};
 	std::unique_ptr<ICompositorBackend> compositor{nullptr};
 	std::unique_ptr<IWorkspaceManager> workspaceManager{nullptr};
 };

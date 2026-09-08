@@ -40,6 +40,10 @@ ShellController::ShellController(ShellBackend& backend, QObject* parent) :
 					  [this](const auto& id) -> void
 					  { this->backend->ActivateWorkspace(id); });
 
+		this->connect(&*this->backend, &ShellBackend::TimeUpdated,
+					  [this, &statusBar](auto dateTime) -> void // NOLINT
+					  { statusBar->SetDateTime(dateTime); });
+
 		qDebug() << statusBar->screen()->name();
 		statusBar->show();
 	}

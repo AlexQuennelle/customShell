@@ -13,6 +13,8 @@ class StatusBar : public QQuickView
 				   activeWindowChanged)
 	Q_PROPERTY(QList<Workspace*> workspaces READ GetWorkspaces NOTIFY
 				   workspacesChanged)
+	Q_PROPERTY(QDateTime dateTime READ GetDateTime NOTIFY dateTimeChanged)
+	Q_PROPERTY(QString clockString READ GetClockString NOTIFY dateTimeChanged)
 
 	public:
 	StatusBar(QWindow* parent = nullptr);
@@ -23,10 +25,14 @@ class StatusBar : public QQuickView
 	void SetActiveWindow(std::optional<WindowInfo&> win);
 	auto GetWorkspaces() -> QList<Workspace*>;
 	void SetWorkspaces(QList<Workspace*>& workspaces);
+	auto GetDateTime() -> QDateTime&;
+	auto GetClockString() -> QString;
+	void SetDateTime(QDateTime dateTime);
 
 	signals:
 	void activeWindowChanged(WindowInfo* newWin);
 	void workspacesChanged();
+	void dateTimeChanged(QDateTime& newTime);
 
 	// For C++ use only
 	void CreateWorkspaceRequested(const QString& name);
@@ -47,6 +53,7 @@ class StatusBar : public QQuickView
 	void RequestActivateWorkspace(const QString& id);
 
 	private:
+	QDateTime dateTime;
 	std::optional<WindowInfo&> activeWindow;
 	std::optional<QList<Workspace*>&> workspaces;
 };

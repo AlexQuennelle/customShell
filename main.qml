@@ -19,6 +19,10 @@ Item {
         visible: true
 
         Row {
+            anchors {
+                verticalCenter: parent.verticalCenter
+            }
+
             Repeater {
                 model: bar.workspaces
 
@@ -55,6 +59,21 @@ Item {
             }
 
             text: root.activeWin !== null ? root.activeWin.title : ""
+        }
+
+        Label {
+            id: clock
+
+            anchors {
+                verticalCenter: parent.verticalCenter
+                right: parent.right
+            }
+
+            font {
+                family: "Jetbrains Mono"
+                pixelSize: 16
+            }
+            text: bar.clockString
         }
     }
 }

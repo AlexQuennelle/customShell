@@ -16,7 +16,7 @@ class WindowInfo : public QObject
 
 	public:
 	WindowInfo() = default;
-	WindowInfo(QString title, QString appID);
+	WindowInfo(const QString title, const QString appID);
 	WindowInfo(const WindowInfo&) = delete;
 	WindowInfo(WindowInfo&&) = delete;
 	~WindowInfo() override = default;
@@ -67,17 +67,17 @@ class Workspace : public QObject
 		active(active),
 		focused(focused) { };
 
-	auto GetID() -> QString& { return this->id; }
-	auto GetName() -> QString& { return this->name; }
-	auto GetOutput() -> QString& { return this->output; }
-	auto GetActiveWindowID() -> std::optional<uint64_t>
+	auto GetID() const -> const QString& { return this->id; }
+	auto GetName() const -> const QString& { return this->name; }
+	auto GetOutput() const -> const QString& { return this->output; }
+	auto GetActiveWindowID() const -> std::optional<uint64_t>
 	{
 		return this->activeWindowID;
 	}
-	auto GetIndex() -> uint8_t { return this->index; }
-	auto GetUrgent() -> bool { return this->urgent; }
-	auto GetActive() -> bool { return this->active; }
-	auto GetFocused() -> bool { return this->focused; }
+	auto GetIndex() const -> uint8_t { return this->index; }
+	auto GetUrgent() const -> bool { return this->urgent; }
+	auto GetActive() const -> bool { return this->active; }
+	auto GetFocused() const -> bool { return this->focused; }
 
 	void SetName(const QString& name)
 	{

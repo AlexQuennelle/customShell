@@ -37,6 +37,20 @@ class NiriBackend : public ICompositorBackend
 	void ReadMessages();
 	void ProcessMessage(const std::string_view message);
 
+	void ChangeActiveWindow(const Workspace& workspace,
+							std::optional<WindowInfo&> window)
+	{
+		if (!this->overviewOpen) [[likely]]
+		{
+			emit ActiveWindowChanged(workspace.GetOutput(), window);
+		}
+		else [[unlikely]]
+		{
+			auto fakeWin = WindowInfo(workspace.GetName(), "");
+			emit ActiveWindowChanged(workspace.GetOutput(), fakeWin);
+		}
+	}
+
 	std::unordered_map<uint64_t, WindowInfo> windows;
 	std::unordered_map<uint64_t, Workspace> workspaces;
 	QHash<QString, QList<Workspace*>> workspaceGroups;
@@ -44,6 +58,7 @@ class NiriBackend : public ICompositorBackend
 	QLocalSocket eventSock;
 	QLocalSocket cmdSock;
 	uint64_t focusedWorkspaceID{};
+	bool overviewOpen{false};
 };
 
 } //namespace niri

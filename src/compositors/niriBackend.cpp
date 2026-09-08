@@ -102,7 +102,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 						auto window = workspace.GetActiveWindowID().transform(
 							[this](auto id) -> auto&
 							{ return this->windows[id]; });
-						emit ActiveWindowChanged(workspace.GetOutput(), window);
+						ChangeActiveWindow(workspace, window);
 					}
 					workspaceGroups[output].push_back(&workspace);
 				}
@@ -132,7 +132,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 				workspace.SetActive(true);
 				auto window = workspace.GetActiveWindowID().transform(
 					[this](auto id) -> auto& { return this->windows[id]; });
-				emit ActiveWindowChanged(workspace.GetOutput(), window);
+				ChangeActiveWindow(workspace, window);
 				if (event.focused)
 				{
 					workspace.SetFocused(true);
@@ -141,10 +141,10 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 			},
 			[this](WorkspaceActiveWindowChangedEvent& event) -> void
 			{
-				auto& key = this->workspaces[event.workspace_id].GetOutput();
+				auto& workspace = this->workspaces[event.workspace_id];
 				auto window = event.active_window_id.transform(
 					[this](auto& id) -> auto& { return this->windows[id]; });
-				emit ActiveWindowChanged(key, window);
+				ChangeActiveWindow(workspace, window);
 			},
 			[this](WindowsChangedEvent& event) -> void
 			{
@@ -162,8 +162,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 						this->workspaces[this->focusedWorkspaceID].SetFocused(
 							false);
 						this->focusedWorkspaceID = window.workspace_id.value();
-						emit ActiveWindowChanged(workspace.GetOutput(),
-												 this->windows[window.id]);
+						ChangeActiveWindow(workspace, this->windows[window.id]);
 					}
 				}
 			},
@@ -181,8 +180,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 					workspace.SetFocused(true);
 					this->workspaces[this->focusedWorkspaceID].SetFocused(
 						false);
-					emit ActiveWindowChanged(workspace.GetOutput(),
-											 this->windows[window.id]);
+					ChangeActiveWindow(workspace, this->windows[window.id]);
 					this->focusedWorkspaceID = window.workspace_id.value();
 				}
 			},
@@ -197,12 +195,14 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 				}
 				auto window = event.id.transform([this](auto& id) -> auto&
 												 { return this->windows[id]; });
-				emit ActiveWindowChanged(workspace.GetOutput(), window);
+				ChangeActiveWindow(workspace, window);
 			},
 			[](ScreenshotCapturedEvent& /*event*/) -> void
 			{
 				// TODO: Send notification
 			},
+			[this](OverviewOpenedOrClosedEvent& event) -> void
+			{ this->overviewOpen = event.is_open; },
 			[](auto& /*event*/) -> void { return; }, // Default case
 		};
 		std::visit(eventSwitch, event.event);

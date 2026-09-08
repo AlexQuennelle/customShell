@@ -1,7 +1,7 @@
 #include "compositorBackend.h"
 
-WindowInfo::WindowInfo(QString title, QString appID) :
-	title(std::move(title)), appID(std::move(appID))
+WindowInfo::WindowInfo(const QString title, const QString appID) :
+	title(title), appID(appID)
 { }
 auto WindowInfo::GetTitle() const -> const QString& { return this->title; }
 auto WindowInfo::GetAppID() const -> const QString& { return this->appID; }

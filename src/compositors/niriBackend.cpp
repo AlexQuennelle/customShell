@@ -112,21 +112,28 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 					  | rv::transform([](auto& value) -> uint64_t
 									  { return value.id; })
 					  | std::ranges::to<std::unordered_set<uint64_t>>();
-				std::erase_if(this->workspaces,
-							  [&openWorkspaces](auto& pair) -> bool
-							  { return !openWorkspaces.contains(pair.first); });
+				auto pred = [&openWorkspaces](const auto& pair) -> bool
+				{
+					return !openWorkspaces.contains(pair.first);
+				};
+				for (auto& [_, val] : this->workspaces | rv::filter(pred))
+				{
+					val.SetDead();
+				}
 				for (const auto& [key, val] : workspaceGroups.asKeyValueRange())
 				{
 					std::ranges::sort(val, {}, &Workspace::GetIndex);
 					emit this->WorkspacesChanged(key, val);
 				}
+				std::erase_if(this->workspaces, [](auto& pair) -> bool
+							  { return pair.second.GetDead(); });
 			},
 			[this](WorkspaceUrgencyChangedEvent& event) -> void
-			{ this->workspaces[event.id].SetUrgent(event.urgent); },
+			{ this->workspaces.at(event.id).SetUrgent(event.urgent); },
 			[this](WorkspaceActivatedEvent& event) -> void
 			{
-				auto& workspace = this->workspaces[event.id];
-				this->workspaces[activeWorkspaces[workspace.GetOutput()]]
+				auto& workspace = this->workspaces.at(event.id);
+				this->workspaces.at(activeWorkspaces[workspace.GetOutput()])
 					.SetActive(false);
 				this->activeWorkspaces[workspace.GetOutput()] = event.id;
 				workspace.SetActive(true);
@@ -141,7 +148,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 			},
 			[this](WorkspaceActiveWindowChangedEvent& event) -> void
 			{
-				auto& workspace = this->workspaces[event.workspace_id];
+				auto& workspace = this->workspaces.at(event.workspace_id);
 				auto window = event.active_window_id.transform(
 					[this](auto& id) -> auto& { return this->windows[id]; });
 				ChangeActiveWindow(workspace, window);
@@ -156,11 +163,14 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 					if (window.is_focused && window.workspace_id.has_value())
 					{
 						auto& workspace
-							= this->workspaces[window.workspace_id.value()];
+							= this->workspaces.at(window.workspace_id.value());
 						workspace.SetActiveWindowId(window.id);
 						workspace.SetFocused(true);
-						this->workspaces[this->focusedWorkspaceID].SetFocused(
-							false);
+						if (this->workspaces.contains(this->focusedWorkspaceID))
+						{
+							this->workspaces.at(this->focusedWorkspaceID)
+								.SetFocused(false);
+						}
 						this->focusedWorkspaceID = window.workspace_id.value();
 						ChangeActiveWindow(workspace, this->windows[window.id]);
 					}
@@ -175,11 +185,11 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 				if (window.is_focused && window.workspace_id.has_value())
 				{
 					auto& workspace
-						= this->workspaces[window.workspace_id.value()];
+						= this->workspaces.at(window.workspace_id.value());
 					workspace.SetActiveWindowId(window.id);
 					workspace.SetFocused(true);
-					this->workspaces[this->focusedWorkspaceID].SetFocused(
-						false);
+					this->workspaces.at(this->focusedWorkspaceID)
+						.SetFocused(false);
 					ChangeActiveWindow(workspace, this->windows[window.id]);
 					this->focusedWorkspaceID = window.workspace_id.value();
 				}
@@ -188,7 +198,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 			{ this->windows.erase(event.id); },
 			[this](WindowFocusChangedEvent& event) -> void
 			{
-				auto& workspace = this->workspaces[this->focusedWorkspaceID];
+				auto& workspace = this->workspaces.at(this->focusedWorkspaceID);
 				if (event.id.has_value())
 				{
 					workspace.SetActiveWindowId(event.id);
@@ -206,6 +216,19 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 			[](auto& /*event*/) -> void { return; }, // Default case
 		};
 		std::visit(eventSwitch, event.event);
+	}
+}
+void NiriBackend::ChangeActiveWindow(const Workspace& workspace,
+									 std::optional<WindowInfo&> window)
+{
+	if (!this->overviewOpen) [[likely]]
+	{
+		emit ActiveWindowChanged(workspace.GetOutput(), window);
+	}
+	else [[unlikely]]
+	{
+		auto fakeWin = WindowInfo(workspace.GetName(), "");
+		emit ActiveWindowChanged(workspace.GetOutput(), fakeWin);
 	}
 }
 

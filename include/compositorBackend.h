@@ -3,7 +3,6 @@
 #include <QObject>
 #include <qqml.h>
 #include <qqmlintegration.h>
-#include <utility>
 
 class WindowInfo : public QObject
 {
@@ -16,7 +15,7 @@ class WindowInfo : public QObject
 
 	public:
 	WindowInfo() = default;
-	WindowInfo(const QString title, const QString appID);
+	WindowInfo(QString title, QString appID);
 	WindowInfo(const WindowInfo&) = delete;
 	WindowInfo(WindowInfo&&) = delete;
 	~WindowInfo() override = default;
@@ -47,75 +46,47 @@ class Workspace : public QObject
 	QML_UNCREATABLE("")
 
 	Q_PROPERTY(QString id READ GetID)
-	Q_PROPERTY(QString name READ GetName NOTIFY NameChanged)
-	Q_PROPERTY(uint8_t index READ GetIndex NOTIFY IndexChanged)
-	Q_PROPERTY(bool urgent READ GetUrgent NOTIFY UrgentChanged)
-	Q_PROPERTY(bool active READ GetActive NOTIFY ActiveChanged)
-	Q_PROPERTY(bool focused READ GetFocused NOTIFY FocusedChanged)
+	Q_PROPERTY(QString name READ GetName NOTIFY nameChanged)
+	Q_PROPERTY(uint8_t index READ GetIndex NOTIFY indexChanged)
+	Q_PROPERTY(bool urgent READ GetUrgent NOTIFY urgentChanged)
+	Q_PROPERTY(bool active READ GetActive NOTIFY activeChanged)
+	Q_PROPERTY(bool focused READ GetFocused NOTIFY focusedChanged)
+	Q_PROPERTY(bool empty READ GetEmpty NOTIFY emptyChanged)
 
 	public:
-	Workspace() = default;
 	Workspace(QString id, QString name, QString output,
 			  std::optional<uint64_t> windowID, uint8_t index, bool urgent,
-			  bool active, bool focused) :
-		id(std::move(id)),
-		name(std::move(name)),
-		output(std::move(output)),
-		activeWindowID(windowID),
-		index(index),
-		urgent(urgent),
-		active(active),
-		focused(focused) { };
+			  bool active, bool focused);
 
-	auto GetID() const -> const QString& { return this->id; }
-	auto GetName() const -> const QString& { return this->name; }
-	auto GetOutput() const -> const QString& { return this->output; }
-	auto GetActiveWindowID() const -> std::optional<uint64_t>
-	{
-		return this->activeWindowID;
-	}
-	auto GetIndex() const -> uint8_t { return this->index; }
-	auto GetUrgent() const -> bool { return this->urgent; }
-	auto GetActive() const -> bool { return this->active; }
-	auto GetFocused() const -> bool { return this->focused; }
+	auto GetID() const -> const QString&;
+	auto GetName() const -> const QString&;
+	auto GetOutput() const -> const QString&;
+	auto GetActiveWindowID() const -> std::optional<uint64_t>;
+	auto GetIndex() const -> uint8_t;
+	auto GetUrgent() const -> bool;
+	auto GetActive() const -> bool;
+	auto GetFocused() const -> bool;
+	auto GetEmpty() const -> bool;
+	auto GetDead() const -> bool;
 
-	void SetName(const QString& name)
-	{
-		this->name = name;
-		emit NameChanged(this->name);
-	}
-	void SetOutput(const QString& output) { this->output = output; }
-	void SetActiveWindowId(const std::optional<uint64_t> windowID)
-	{
-		this->activeWindowID = windowID;
-	}
-	void SetIndex(uint8_t index)
-	{
-		this->index = index;
-		emit IndexChanged(this->index);
-	}
-	void SetUrgent(bool urgent)
-	{
-		this->urgent = urgent;
-		emit UrgentChanged(this->urgent);
-	}
-	void SetActive(bool active)
-	{
-		this->active = active;
-		emit ActiveChanged(this->active);
-	}
-	void SetFocused(bool focused)
-	{
-		this->focused = focused;
-		emit FocusedChanged(this->focused);
-	}
+	void SetName(const QString& name);
+	void SetOutput(const QString& output);
+	void SetActiveWindowId(const std::optional<uint64_t> windowID);
+	void SetIndex(uint8_t index);
+	void SetUrgent(bool urgent);
+	void SetActive(bool active);
+	void SetFocused(bool focused);
+	void SetEmpty(bool empty);
+
+	void SetDead();
 
 	signals:
-	void NameChanged(QString newName);
-	void IndexChanged(uint8_t newIndex);
-	void UrgentChanged(bool newUrgent);
-	void ActiveChanged(bool newActive);
-	void FocusedChanged(bool newFocused);
+	void nameChanged(QString newName);
+	void indexChanged(uint8_t newIndex);
+	void urgentChanged(bool newUrgent);
+	void activeChanged(bool newActive);
+	void focusedChanged(bool newFocused);
+	void emptyChanged(bool newEmpty);
 
 	private:
 	QString id;
@@ -126,6 +97,8 @@ class Workspace : public QObject
 	bool urgent{};
 	bool active{};
 	bool focused{};
+	bool empty{};
+	bool dead{false};
 };
 
 class IWorkspaceManager : public QObject // NOLINT

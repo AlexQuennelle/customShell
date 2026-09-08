@@ -38,18 +38,7 @@ class NiriBackend : public ICompositorBackend
 	void ProcessMessage(const std::string_view message);
 
 	void ChangeActiveWindow(const Workspace& workspace,
-							std::optional<WindowInfo&> window)
-	{
-		if (!this->overviewOpen) [[likely]]
-		{
-			emit ActiveWindowChanged(workspace.GetOutput(), window);
-		}
-		else [[unlikely]]
-		{
-			auto fakeWin = WindowInfo(workspace.GetName(), "");
-			emit ActiveWindowChanged(workspace.GetOutput(), fakeWin);
-		}
-	}
+							std::optional<WindowInfo&> window);
 
 	std::unordered_map<uint64_t, WindowInfo> windows;
 	std::unordered_map<uint64_t, Workspace> workspaces;

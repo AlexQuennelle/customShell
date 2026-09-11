@@ -12,11 +12,12 @@ Item {
 
     Component.onCompleted: {}
 
-    Pane {
+    Rectangle {
         anchors {
             fill: parent
         }
-        visible: true
+
+        color: ThemeManager.background
 
         Row {
             anchors {
@@ -30,12 +31,33 @@ Item {
                     id: button
 
                     required property Workspace modelData
+                    property real size: button.modelData.empty ? 20 : 28
 
-                    height: button.hovered ? 25 : 20
-                    width: 20
+                    anchors {
+                        verticalCenter: parent.verticalCenter
+                    }
+
+                    height: size
+                    width: size
                     Rectangle {
                         anchors.fill: parent
-                        color: button.modelData.active ? "Red" : "Grey"
+                        anchors.margins: 4
+                        radius: 12
+                        color: {
+                            if (button.modelData.focused) {
+                                return ThemeManager.selected;
+                            } else if (button.modelData.active) {
+                                return ThemeManager.textCol;
+                            } else if (button.modelData.urgent) {
+                                return "Yellow";
+                            } else if (button.hovered) {
+                                return ThemeManager.hover;
+                            } else if (button.modelData.empty) {
+                                return ThemeManager.empty;
+                            } else {
+                                return ThemeManager.fill;
+                            }
+                        }
                     }
                     onClicked: button => {
                         if (button === Qt.LeftButton) {
@@ -58,6 +80,7 @@ Item {
                 centerIn: parent
             }
 
+            color: ThemeManager.textCol
             text: root.activeWin !== null ? root.activeWin.title : ""
         }
 
@@ -73,6 +96,8 @@ Item {
                 family: "Jetbrains Mono"
                 pixelSize: 16
             }
+            color: ThemeManager.textCol
+
             text: bar.clockString
         }
     }

@@ -91,9 +91,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 						workspace.SetName(nameStr);
 						workspace.SetOutput(output);
 						workspace.SetIndex(data.idx);
-						workspace.SetFocused(data.is_focused);
 						workspace.SetActive(data.is_active);
-						workspace.SetFocused(data.is_focused);
 						workspace.SetActiveWindowId(data.active_window_id);
 					}
 					if (data.is_active || data.is_focused)
@@ -104,6 +102,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 							{ return this->windows[id]; });
 						ChangeActiveWindow(workspace, window);
 					}
+					workspace.SetFocused(data.is_focused);
 					workspaceGroups[output].push_back(&workspace);
 				}
 				namespace rv = std::views;
@@ -142,6 +141,8 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 				ChangeActiveWindow(workspace, window);
 				if (event.focused)
 				{
+					this->workspaces.at(this->focusedWorkspaceID)
+						.SetFocused(false);
 					workspace.SetFocused(true);
 					this->focusedWorkspaceID = event.id;
 				}
@@ -157,21 +158,37 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 			{
 				for (auto& window : event.windows)
 				{
+					if (this->windows.contains(window.id))
+					{
+						auto workspaceID
+							= this->windows.at(window.id).GetWorkspace();
+						if (workspaceID.has_value())
+						{
+							this->workspaces.at(workspaceID.value())
+								.RemoveWindow(window.id);
+						}
+					}
 					this->windows[window.id] = WindowInfo(
 						QString::fromStdString(window.title.value_or("")),
-						QString::fromStdString(window.app_id.value_or("")));
-					if (window.is_focused && window.workspace_id.has_value())
+						QString::fromStdString(window.app_id.value_or("")),
+						window.workspace_id);
+					if (window.workspace_id.has_value())
 					{
 						auto& workspace
 							= this->workspaces.at(window.workspace_id.value());
-						workspace.SetActiveWindowId(window.id);
-						workspace.SetFocused(true);
-						if (this->workspaces.contains(this->focusedWorkspaceID))
+						workspace.AddWindow(window.id);
+						if (window.is_focused)
 						{
-							this->workspaces.at(this->focusedWorkspaceID)
-								.SetFocused(false);
+							workspace.SetActiveWindowId(window.id);
+							if (this->workspaces.contains(focusedWorkspaceID))
+							{
+								this->workspaces.at(this->focusedWorkspaceID)
+									.SetFocused(false);
+							}
+							workspace.SetFocused(true);
+							this->focusedWorkspaceID
+								= window.workspace_id.value();
 						}
-						this->focusedWorkspaceID = window.workspace_id.value();
 						ChangeActiveWindow(workspace, this->windows[window.id]);
 					}
 				}
@@ -179,33 +196,63 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 			[this](WindowOpenedOrChangedEvent& event) -> void
 			{
 				auto& window{event.window};
+				if (this->windows.contains(window.id))
+				{
+					auto workspaceID = this->windows[window.id].GetWorkspace();
+					if (workspaceID.has_value())
+					{
+						this->workspaces.at(workspaceID.value())
+							.RemoveWindow(window.id);
+					}
+				}
 				this->windows[window.id] = WindowInfo(
 					QString::fromStdString(window.title.value_or("")),
-					QString::fromStdString(window.app_id.value_or("")));
+					QString::fromStdString(window.app_id.value_or("")),
+					window.workspace_id);
 				if (window.is_focused && window.workspace_id.has_value())
 				{
 					auto& workspace
 						= this->workspaces.at(window.workspace_id.value());
 					workspace.SetActiveWindowId(window.id);
-					workspace.SetFocused(true);
+					workspace.AddWindow(window.id);
+
 					this->workspaces.at(this->focusedWorkspaceID)
 						.SetFocused(false);
-					ChangeActiveWindow(workspace, this->windows[window.id]);
+					workspace.SetFocused(true);
 					this->focusedWorkspaceID = window.workspace_id.value();
+					ChangeActiveWindow(workspace, this->windows[window.id]);
 				}
 			},
 			[this](WindowClosedEvent& event) -> void
-			{ this->windows.erase(event.id); },
+			{
+				auto workspaceID = this->windows[event.id].GetWorkspace();
+				if (workspaceID.has_value())
+				{
+					this->workspaces.at(workspaceID.value())
+						.RemoveWindow(event.id);
+				}
+				this->windows.erase(event.id);
+			},
 			[this](WindowFocusChangedEvent& event) -> void
 			{
-				auto& workspace = this->workspaces.at(this->focusedWorkspaceID);
-				if (event.id.has_value())
-				{
-					workspace.SetActiveWindowId(event.id);
-				}
+				// TODO: fix empty workspaces not being focused correctly
+				auto& oldWorkspace
+					= this->workspaces.at(this->focusedWorkspaceID);
+				oldWorkspace.SetFocused(false);
 				auto window = event.id.transform([this](auto& id) -> auto&
 												 { return this->windows[id]; });
-				ChangeActiveWindow(workspace, window);
+				if (window.has_value())
+				{
+					auto workspaceID = window->GetWorkspace();
+					if (workspaceID.has_value())
+					{
+						auto& workspace
+							= this->workspaces.at(workspaceID.value());
+						workspace.SetActiveWindowId(event.id);
+						workspace.SetFocused(true);
+						ChangeActiveWindow(workspace, window);
+					}
+				}
 			},
 			[](ScreenshotCapturedEvent& /*event*/) -> void
 			{

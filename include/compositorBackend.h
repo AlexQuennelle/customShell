@@ -15,16 +15,19 @@ class WindowInfo : public QObject
 
 	public:
 	WindowInfo() = default;
-	WindowInfo(QString title, QString appID);
+	WindowInfo(QString title, QString appID,
+			   std::optional<uint64_t> workspace = {});
 	WindowInfo(const WindowInfo&) = delete;
 	WindowInfo(WindowInfo&&) = delete;
 	~WindowInfo() override = default;
 
 	auto GetTitle() const -> const QString&;
 	auto GetAppID() const -> const QString&;
+	auto GetWorkspace() const -> std::optional<uint64_t>;
 
 	void SetTitle(const QString& newTitle);
 	void SetAppID(const QString& newAppID);
+	void SetWorkspace(const std::optional<uint64_t> id);
 
 	auto operator=(const WindowInfo& other) -> WindowInfo&;
 	auto operator=(WindowInfo&& other) noexcept -> WindowInfo&;
@@ -36,6 +39,7 @@ class WindowInfo : public QObject
 	private:
 	QString title{};
 	QString appID{};
+	std::optional<uint64_t> workspace;
 };
 
 class Workspace : public QObject
@@ -75,8 +79,9 @@ class Workspace : public QObject
 	void SetIndex(uint8_t index);
 	void SetUrgent(bool urgent);
 	void SetActive(bool active);
+	void AddWindow(uint64_t id);
+	void RemoveWindow(uint64_t id);
 	void SetFocused(bool focused);
-	void SetEmpty(bool empty);
 
 	void SetDead();
 
@@ -89,6 +94,7 @@ class Workspace : public QObject
 	void emptyChanged(bool newEmpty);
 
 	private:
+	std::unordered_set<uint64_t> windows;
 	QString id;
 	QString name;
 	QString output;
@@ -97,7 +103,6 @@ class Workspace : public QObject
 	bool urgent{};
 	bool active{};
 	bool focused{};
-	bool empty{};
 	bool dead{false};
 };
 

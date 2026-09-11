@@ -1,10 +1,16 @@
 #include "compositorBackend.h"
 
-WindowInfo::WindowInfo(QString title, QString appID) :
-	title(std::move(title)), appID(std::move(appID))
+WindowInfo::WindowInfo(QString title, QString appID,
+					   std::optional<uint64_t> workspace) :
+	title(std::move(title)), appID(std::move(appID)), workspace(workspace)
 { }
 auto WindowInfo::GetTitle() const -> const QString& { return this->title; }
 auto WindowInfo::GetAppID() const -> const QString& { return this->appID; }
+auto WindowInfo::GetWorkspace() const -> std::optional<uint64_t>
+{
+	return this->workspace;
+}
+
 void WindowInfo::SetTitle(const QString& newTitle)
 {
 	this->title = newTitle;
@@ -15,6 +21,11 @@ void WindowInfo::SetAppID(const QString& newAppID)
 	this->appID = newAppID;
 	emit this->AppIDChanged(this->appID);
 }
+void WindowInfo::SetWorkspace(const std::optional<uint64_t> id)
+{
+	this->workspace = id;
+}
+
 auto WindowInfo::operator=(const WindowInfo& other) -> WindowInfo&
 {
 	if (&other == this)
@@ -22,6 +33,7 @@ auto WindowInfo::operator=(const WindowInfo& other) -> WindowInfo&
 
 	this->title = other.title;
 	this->appID = other.appID;
+	this->workspace = other.workspace;
 
 	emit this->TitleChanged(this->title);
 	emit this->AppIDChanged(this->appID);
@@ -32,6 +44,7 @@ auto WindowInfo::operator=(WindowInfo&& other) noexcept -> WindowInfo&
 {
 	this->title = other.title;
 	this->appID = other.appID;
+	this->workspace = other.workspace;
 
 	emit this->TitleChanged(this->title);
 	emit this->AppIDChanged(this->appID);
@@ -62,7 +75,7 @@ auto Workspace::GetIndex() const -> uint8_t { return this->index; }
 auto Workspace::GetUrgent() const -> bool { return this->urgent; }
 auto Workspace::GetActive() const -> bool { return this->active; }
 auto Workspace::GetFocused() const -> bool { return this->focused; }
-auto Workspace::GetEmpty() const -> bool { return this->empty; }
+auto Workspace::GetEmpty() const -> bool { return this->windows.empty(); }
 auto Workspace::GetDead() const -> bool { return this->dead; }
 
 void Workspace::SetName(const QString& name)
@@ -90,15 +103,21 @@ void Workspace::SetActive(bool active)
 	this->active = active;
 	emit this->activeChanged(this->active);
 }
+void Workspace::AddWindow(uint64_t id)
+{
+	this->windows.insert(id);
+	emit this->emptyChanged(false);
+}
+void Workspace::RemoveWindow(uint64_t id)
+{
+	this->windows.erase(id);
+	emit this->emptyChanged(this->windows.empty());
+}
+
 void Workspace::SetFocused(bool focused)
 {
 	this->focused = focused;
 	emit this->focusedChanged(this->focused);
-}
-void Workspace::SetEmpty(bool empty)
-{
-	this->empty = empty;
-	emit this->emptyChanged(this->empty);
 }
 
 void Workspace::SetDead() { this->dead = true; };

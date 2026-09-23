@@ -49,10 +49,10 @@ qt_add_qml_module(${CMAKE_PROJECT_NAME}
     URI Shell
     QML_FILES
         main.qml
+        src/WorkspaceButton.qml
     SOURCES
         src/main.cpp
 
-        include/qmlTypes.hpp
         include/themeManager.hpp
 
         include/shellBackend.h

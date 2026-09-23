@@ -28,48 +28,17 @@ Item {
                 model: bar.workspaces
 
                 WorkspaceButton {
-                    id: button
-
                     required property Workspace modelData
-                    property real size: button.modelData.empty ? 20 : 28
 
                     anchors {
                         verticalCenter: parent.verticalCenter
                     }
 
-                    height: size
-                    width: size
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.margins: 4
-                        radius: 12
-                        color: {
-                            if (button.modelData.focused) {
-                                return ThemeManager.selected;
-                            } else if (button.modelData.active) {
-                                return ThemeManager.textCol;
-                            } else if (button.modelData.urgent) {
-                                return "Yellow";
-                            } else if (button.hovered) {
-                                return ThemeManager.hover;
-                            } else if (button.modelData.empty) {
-                                return ThemeManager.empty;
-                            } else {
-                                return ThemeManager.fill;
-                            }
-                        }
-                    }
-                    onClicked: button => {
-                        if (button === Qt.LeftButton) {
-                            bar.RequestActivateWorkspace(modelData.id);
-                        } else if (button === Qt.RightButton) {
-                            console.log("Right Click");
-                        } else {
-                            console.log("Other");
-                        }
-                    }
-                    onMousePressed: button => {
-                        if (button === Qt.LeftButton) {} else if (button === Qt.RightButton) {} else {}
+                    workspaceData: modelData
+
+                    onEntered: drag => {}
+                    onRequestWorkspaceActivate: id => {
+                        bar.RequestActivateWorkspace(id);
                     }
                 }
             }

@@ -53,6 +53,8 @@ qt_add_qml_module(${CMAKE_PROJECT_NAME}
     SOURCES
         src/main.cpp
 
+        include/qUtils.h
+
         include/themeManager.hpp
 
         include/shellBackend.h
@@ -128,6 +130,8 @@ target_compile_features("${CMAKE_PROJECT_NAME}" PRIVATE cxx_std_26)
 target_sources("${CMAKE_PROJECT_NAME}"
     PRIVATE
     src/main.cpp
+
+    include/qUtils.h
 
     include/statusBar.hpp
     src/statusBar.cpp

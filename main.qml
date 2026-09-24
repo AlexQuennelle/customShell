@@ -24,21 +24,47 @@ Item {
                 verticalCenter: parent.verticalCenter
             }
 
+            move: Transition {
+                NumberAnimation {
+                    properties: "x,y"
+                    easing.type: Easing.OutQuad
+                }
+            }
             Repeater {
-                model: bar.workspaces
+                model: DelegateModel {
+                    id: visualModel
 
-                WorkspaceButton {
-                    required property Workspace modelData
+                    model: bar.workspaces
 
-                    anchors {
-                        verticalCenter: parent.verticalCenter
-                    }
+                    delegate: DropArea {
+                        required property Workspace modelData
+                        required property int index
 
-                    workspaceData: modelData
+                        width: button.width
+                        height: button.height
 
-                    onEntered: drag => {}
-                    onRequestWorkspaceActivate: id => {
-                        bar.RequestActivateWorkspace(id);
+                        onEntered: drag => {
+                            visualModel.items.move((drag.source as WorkspaceButton).index, index);
+                        }
+                        onDropped: drag => {
+                            let targetID = (drag.source as WorkspaceButton).workspaceData.id;
+                            bar.RequestSetWorkspaceIndex(targetID, index);
+                        }
+
+                        WorkspaceButton {
+                            id: button
+
+                            anchors {
+                                verticalCenter: parent.verticalCenter
+                            }
+
+                            workspaceData: parent.modelData
+                            index: parent.index
+
+                            onRequestWorkspaceActivate: id => {
+                                bar.RequestActivateWorkspace(id);
+                            }
+                        }
                     }
                 }
             }

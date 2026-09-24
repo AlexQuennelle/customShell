@@ -1,7 +1,7 @@
 import QtQuick
 import Shell
 
-DropArea {
+Item {
     id: root
 
     required property Workspace workspaceData
@@ -19,12 +19,12 @@ DropArea {
     width: size
     height: size
 
-    Drag.source: mouseArea
+    Drag.source: root
     Drag.active: mouseArea.drag.active
     Drag.hotSpot.x: size / 2
     Drag.hotSpot.y: size / 2
 
-    onDropped: drag => {}
+    // onDropped: drag => {}
 
     Rectangle {
         anchors {

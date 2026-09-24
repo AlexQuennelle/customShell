@@ -37,7 +37,15 @@ void NiriBackend::SetWorkspaceOutput(const QString& id,
 									 const QString& outputName)
 { }
 void NiriBackend::SetWorkspaceName(const QString& id, const QString& name) { }
-void NiriBackend::SetWorkspaceIndex(const QString& id, uint64_t index) { }
+void NiriBackend::SetWorkspaceIndex(const QString& id, uint64_t index)
+{
+	std::string cmd = R"({"Action":{"MoveWorkspaceToIndex":{"index":)"
+					  + std::to_string(index + 1)
+					  + R"(,"reference":{"Id":)"
+					  + id.toStdString()
+					  + "}}}}\n";
+	this->cmdSock.write(cmd.c_str());
+}
 void NiriBackend::ActivateWorkspace(const QString& id)
 {
 	// TODO: Create action type to serialize to json with glaze

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "compositorBackend.h"
+#include "qUtils.h"
 
 #include <LayerShellQt/Window>
 #include <QQuickView>
@@ -11,8 +12,9 @@ class StatusBar : public QQuickView
 
 	Q_PROPERTY(WindowInfo* activeWindow READ GetActiveWindow NOTIFY
 				   activeWindowChanged)
-	Q_PROPERTY(QList<Workspace*> workspaces READ GetWorkspaces NOTIFY
-				   workspacesChanged)
+	// Q_PROPERTY(QList<Workspace*> workspaces READ GetWorkspaces NOTIFY
+	// 			   workspacesChanged)
+	Q_PROPERTY(QListModel* workspaces READ GetWorkspaces CONSTANT)
 	Q_PROPERTY(QDateTime dateTime READ GetDateTime NOTIFY dateTimeChanged)
 	Q_PROPERTY(QString clockString READ GetClockString NOTIFY dateTimeChanged)
 
@@ -23,7 +25,8 @@ class StatusBar : public QQuickView
 
 	auto GetActiveWindow() -> WindowInfo*;
 	void SetActiveWindow(std::optional<WindowInfo&> win);
-	auto GetWorkspaces() -> QList<Workspace*>;
+	// auto GetWorkspaces() -> QList<Workspace*>;
+	auto GetWorkspaces() -> QListModel*;
 	void SetWorkspaces(QList<Workspace*>& workspaces);
 	auto GetDateTime() -> QDateTime&;
 	auto GetClockString() -> QString;
@@ -55,5 +58,6 @@ class StatusBar : public QQuickView
 	private:
 	QDateTime dateTime;
 	std::optional<WindowInfo&> activeWindow;
-	std::optional<QList<Workspace*>&> workspaces;
+	QListModel workspaces;
+	// std::optional<QList<Workspace*>&> workspaces;
 };

@@ -49,7 +49,7 @@ class Workspace : public QObject
 	QML_ELEMENT
 	QML_UNCREATABLE("")
 
-	Q_PROPERTY(QString id READ GetID)
+	Q_PROPERTY(QString id READ GetID CONSTANT)
 	Q_PROPERTY(QString name READ GetName NOTIFY nameChanged)
 	Q_PROPERTY(uint8_t index READ GetIndex NOTIFY indexChanged)
 	Q_PROPERTY(bool urgent READ GetUrgent NOTIFY urgentChanged)

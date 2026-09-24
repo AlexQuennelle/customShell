@@ -11,26 +11,24 @@ Item {
     readonly property real sizeEmpty: 20
     readonly property real size: workspaceData.empty ? sizeEmpty : sizeFull
 
-    property bool dragging: false
-
     signal requestWorkspaceActivate(id: string)
-    signal requestSetIndex(index: int)
 
     width: size
-    height: size
+    height: sizeFull
 
     Drag.source: root
     Drag.active: mouseArea.drag.active
-    Drag.hotSpot.x: size / 2
-    Drag.hotSpot.y: size / 2
-
-    // onDropped: drag => {}
+    Drag.hotSpot.x: root.width / 2
+    Drag.hotSpot.y: root.height / 2
 
     Rectangle {
         anchors {
-            fill: parent
             margins: 4
+            centerIn: parent
         }
+
+        width: parent.width - 8
+        height: parent.width - 8
 
         radius: 12
         color: {
@@ -60,8 +58,6 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         drag.target: root
 
-        onPressAndHold: root.dragging = true
-        // onReleased: root.dragging = false
         onReleased: root.Drag.drop()
         onClicked: event => {
             if (event.button === Qt.LeftButton) {
@@ -70,6 +66,15 @@ Item {
                 console.log("Right Click");
             } else {
                 console.log("Other");
+            }
+        }
+    }
+    states: State {
+        when: mouseArea.drag.active
+        AnchorChanges {
+            target: root
+            anchors {
+                horizontalCenter: undefined
             }
         }
     }

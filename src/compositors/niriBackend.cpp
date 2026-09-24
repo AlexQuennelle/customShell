@@ -90,7 +90,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 
 					auto [it, success] = this->workspaces.try_emplace(
 						data.id, QString::number(data.id), nameStr, output,
-						data.active_window_id, data.idx, data.is_urgent,
+						data.active_window_id, data.idx - 1, data.is_urgent,
 						data.is_active, data.is_focused);
 					auto& [_, workspace] = *it;
 
@@ -98,7 +98,7 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 					{
 						workspace.SetName(nameStr);
 						workspace.SetOutput(output);
-						workspace.SetIndex(data.idx);
+						workspace.SetIndex(data.idx - 1);
 						workspace.SetActive(data.is_active);
 						workspace.SetActiveWindowId(data.active_window_id);
 					}

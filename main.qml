@@ -26,7 +26,7 @@ Item {
 
             move: Transition {
                 NumberAnimation {
-                    properties: "x,y"
+                    properties: "x"
                     easing.type: Easing.OutQuad
                 }
             }
@@ -37,6 +37,7 @@ Item {
                     model: bar.workspaces
 
                     delegate: DropArea {
+                        id: drop
                         required property Workspace modelData
                         required property int index
 
@@ -44,11 +45,17 @@ Item {
                         height: button.height
 
                         onEntered: drag => {
-                            visualModel.items.move((drag.source as WorkspaceButton).index, index);
+                            let target = (drag.source as WorkspaceButton).index;
+                            let vIdx = index;
+                            visualModel.items.move(target, vIdx);
+                            index = (drag.source as WorkspaceButton).index;
+                            (drag.source as WorkspaceButton).parent.index = vIdx;
                         }
                         onDropped: drag => {
-                            let targetID = (drag.source as WorkspaceButton).workspaceData.id;
-                            bar.RequestSetWorkspaceIndex(targetID, index);
+                            drag.source.parent = drop;
+                            let targetID = modelData.id;
+                            let targetIndex = (drag.source as WorkspaceButton).index;
+                            bar.RequestSetWorkspaceIndex(targetID, targetIndex);
                         }
 
                         WorkspaceButton {
@@ -56,6 +63,7 @@ Item {
 
                             anchors {
                                 verticalCenter: parent.verticalCenter
+                                horizontalCenter: parent.horizontalCenter
                             }
 
                             workspaceData: parent.modelData

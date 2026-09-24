@@ -60,12 +60,12 @@ class QListModel : public QAbstractListModel
 			{
 				if (target == dest - 1)
 					dest = target++;
-				// this->beginResetModel();
-				// this->listData.move(target, dest);
-				// this->endResetModel();
-				this->beginMoveRows(QModelIndex(), target, target,
-									QModelIndex(), dest);
-				this->endMoveRows();
+				this->beginResetModel();
+				this->listData.move(target, dest);
+				this->endResetModel();
+				// this->beginMoveRows(QModelIndex(), target, target,
+				// 					QModelIndex(), dest);
+				// this->endMoveRows();
 			}
 		}
 	}

@@ -1,6 +1,8 @@
-#include "compositors/niriBackend.h"
-#include "compositorBackend.h"
+// NOTE: Must be first to fix Qt macro issue
 #include "compositors/niriTypes.hpp"
+
+#include "compositorBackend.h"
+#include "compositors/niriBackend.h"
 
 #include <qdebug.h>
 

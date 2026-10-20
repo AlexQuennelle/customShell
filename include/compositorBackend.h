@@ -135,9 +135,6 @@ class ICompositorBackend : public QObject // NOLINT
 	public:
 	~ICompositorBackend() override = default;
 
-	// virtual auto GetActiveWindow(const QString& outputName) -> WindowInfo& =
-	// 0;
-
 	signals:
 	void ActiveWindowChanged(const QString& output,
 							 std::optional<WindowInfo&> window);

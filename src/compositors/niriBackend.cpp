@@ -245,7 +245,6 @@ void NiriBackend::ProcessMessage(const std::string_view message) // NOLINT
 			},
 			[this](WindowFocusChangedEvent& event) -> void
 			{
-				// TODO: fix empty workspaces not being focused correctly
 				auto& oldWorkspace
 					= this->workspaces.at(this->focusedWorkspaceID);
 				if (event.id.has_value())

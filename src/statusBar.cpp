@@ -38,17 +38,13 @@ void StatusBar::SetActiveWindow(std::optional<WindowInfo&> win)
 			.transform([](auto& val) -> auto* { return &val; })
 			.value_or(nullptr));
 }
-// auto StatusBar::GetWorkspaces() -> QList<Workspace*>
 auto StatusBar::GetWorkspaces() -> QListModel*
 {
-	// return workspaces.value_or({});
 	return &this->workspaces;
 }
 void StatusBar::SetWorkspaces(QList<Workspace*>& workspaces)
 {
 	this->workspaces.Reset(workspaces);
-	// this->workspaces = workspaces;
-	// emit this->workspacesChanged();
 }
 auto StatusBar::GetDateTime() -> QDateTime& { return this->dateTime; }
 auto StatusBar::GetClockString() -> QString

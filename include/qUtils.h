@@ -63,9 +63,6 @@ class QListModel : public QAbstractListModel
 				this->beginResetModel();
 				this->listData.move(target, dest);
 				this->endResetModel();
-				// this->beginMoveRows(QModelIndex(), target, target,
-				// 					QModelIndex(), dest);
-				// this->endMoveRows();
 			}
 		}
 	}

@@ -12,8 +12,6 @@ class StatusBar : public QQuickView
 
 	Q_PROPERTY(WindowInfo* activeWindow READ GetActiveWindow NOTIFY
 				   activeWindowChanged)
-	// Q_PROPERTY(QList<Workspace*> workspaces READ GetWorkspaces NOTIFY
-	// 			   workspacesChanged)
 	Q_PROPERTY(QListModel* workspaces READ GetWorkspaces CONSTANT)
 	Q_PROPERTY(QDateTime dateTime READ GetDateTime NOTIFY dateTimeChanged)
 	Q_PROPERTY(QString clockString READ GetClockString NOTIFY dateTimeChanged)
@@ -25,7 +23,6 @@ class StatusBar : public QQuickView
 
 	auto GetActiveWindow() -> WindowInfo*;
 	void SetActiveWindow(std::optional<WindowInfo&> win);
-	// auto GetWorkspaces() -> QList<Workspace*>;
 	auto GetWorkspaces() -> QListModel*;
 	void SetWorkspaces(QList<Workspace*>& workspaces);
 	auto GetDateTime() -> QDateTime&;
@@ -59,5 +56,4 @@ class StatusBar : public QQuickView
 	QDateTime dateTime;
 	std::optional<WindowInfo&> activeWindow;
 	QListModel workspaces;
-	// std::optional<QList<Workspace*>&> workspaces;
 };
